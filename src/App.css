@@ -10,10 +10,11 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
   margin-top: 4px;
 }
-.m3-col { display: flex; flex-direction: column; }
+.m3-col { display: flex; flex-direction: column; height: 100%; }
+.m3-col > .m3-card:last-child { flex: 1; }
 .m3-col .m3-card:last-child { margin-bottom: 0; }
 
 @media (max-width: 900px) {
