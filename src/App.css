@@ -1,8 +1,23 @@
 /* ===== M3 layout ===== */
 .m3-page {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 16px 96px;
+}
+
+/* Dos columnas: izquierda partido+ruleta, derecha ganador+ranking */
+.m3-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+  margin-top: 4px;
+}
+.m3-col { display: flex; flex-direction: column; }
+.m3-col .m3-card:last-child { margin-bottom: 0; }
+
+@media (max-width: 900px) {
+  .m3-grid { grid-template-columns: 1fr; }
 }
 
 /* Top app bar */
@@ -208,7 +223,18 @@
 .m3-winner-card .material-symbols-rounded { font-size: 32px; }
 
 /* Ranking list */
-.m3-list { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+.m3-list {
+  display: flex; flex-direction: column; gap: 2px; margin-top: 8px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+}
+.m3-list::-webkit-scrollbar { width: 8px; }
+.m3-list::-webkit-scrollbar-thumb {
+  background: var(--md-sys-color-outline-variant);
+  border-radius: 999px;
+}
 .m3-list-row {
   display: flex; align-items: center; gap: 12px;
   padding: 10px 8px;
@@ -249,7 +275,7 @@
 .m3-sql { margin-top: 12px; font-size: 14px; }
 .m3-sql pre {
   white-space: pre-wrap;
-  background: #1d1b20; color: #d0bcff;
+  background: #1d1b20; color: #a8c7fa;
   padding: 12px; border-radius: var(--md-shape-m);
   font-size: 12px; overflow-x: auto;
 }

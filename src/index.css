@@ -1,16 +1,16 @@
 /* Material Design 3 — tokens base (M3 Expressive, baseline morado) */
 :root {
-  --md-sys-color-primary: #6750a4;
+  --md-sys-color-primary: #0b57d0;
   --md-sys-color-on-primary: #ffffff;
-  --md-sys-color-primary-container: #eaddff;
-  --md-sys-color-on-primary-container: #4f378b;
-  --md-sys-color-secondary: #625b71;
+  --md-sys-color-primary-container: #d3e3fd;
+  --md-sys-color-on-primary-container: #041e49;
+  --md-sys-color-secondary: #535f70;
   --md-sys-color-on-secondary: #ffffff;
-  --md-sys-color-secondary-container: #e8def8;
-  --md-sys-color-on-secondary-container: #1d192b;
-  --md-sys-color-tertiary: #7d5260;
-  --md-sys-color-tertiary-container: #ffd8e4;
-  --md-sys-color-on-tertiary-container: #31111d;
+  --md-sys-color-secondary-container: #d7e3f7;
+  --md-sys-color-on-secondary-container: #101c2b;
+  --md-sys-color-tertiary: #475d92;
+  --md-sys-color-tertiary-container: #dce2f9;
+  --md-sys-color-on-tertiary-container: #0a1b3d;
   --md-sys-color-error: #b3261e;
   --md-sys-color-on-error: #ffffff;
   --md-sys-color-error-container: #f9dedc;
@@ -44,15 +44,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --md-sys-color-primary: #d0bcff;
-    --md-sys-color-on-primary: #381e72;
-    --md-sys-color-primary-container: #4f378b;
-    --md-sys-color-on-primary-container: #eaddff;
-    --md-sys-color-secondary: #ccc2dc;
-    --md-sys-color-secondary-container: #4a4458;
-    --md-sys-color-on-secondary-container: #e8def8;
-    --md-sys-color-tertiary-container: #633b48;
-    --md-sys-color-on-tertiary-container: #ffd8e4;
+    --md-sys-color-primary: #a8c7fa;
+    --md-sys-color-on-primary: #0a305f;
+    --md-sys-color-primary-container: #174a7c;
+    --md-sys-color-on-primary-container: #d3e3fd;
+    --md-sys-color-secondary: #bdc7dc;
+    --md-sys-color-secondary-container: #39485a;
+    --md-sys-color-on-secondary-container: #d7e3f7;
+    --md-sys-color-tertiary-container: #3a4a6b;
+    --md-sys-color-on-tertiary-container: #dce2f9;
     --md-sys-color-error: #f2b8b5;
     --md-sys-color-error-container: #93000a;
     --md-sys-color-surface: #141218;
