@@ -34,13 +34,13 @@ create policy "demo" on players for all using (true) with check (true);
 -- si tu tabla ya existe, solo agrega la columna:
 -- alter table players add column if not exists avatar text;`
 
-// comprime la foto a 128x128 para guardarla liviana
+// comprime la foto a 512px para que se vea nítida en grande y en chico
 const compressAvatar = (file) =>
   new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file)
     const img = new Image()
     img.onload = () => {
-      const S = 128
+      const S = 512
       const canvas = document.createElement('canvas')
       canvas.width = S
       canvas.height = S
@@ -52,7 +52,7 @@ const compressAvatar = (file) =>
         0, 0, S, S
       )
       URL.revokeObjectURL(url)
-      resolve(canvas.toDataURL('image/jpeg', 0.72))
+      resolve(canvas.toDataURL('image/jpeg', 0.82))
     }
     img.onerror = reject
     img.src = url
