@@ -7,6 +7,7 @@ const MAX_TOTAL = MAX_PER_TEAM * 2
 const LS_PLAYERS = 'team-players-v2'
 const LS_ACTIVE = 'team-active-v2'
 const LS_ADMIN = 'm3-admin-v1'
+const LS_HISTORY = 'team-winhistory-v1'
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'equipo123'
 
@@ -41,6 +42,14 @@ function App() {
   const [spinning, setSpinning] = useState(false)
   const [lastWinner, setLastWinner] = useState(null)
   const [status, setStatus] = useState('')
+  // historial de victorias para deshacer errores (solo en este dispositivo)
+  const [winHistory, setWinHistory] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(LS_HISTORY) ?? '[]')
+    } catch {
+      return []
+    }
+  })
 
   // admin
   const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem(LS_ADMIN) === '1')
@@ -102,6 +111,9 @@ function App() {
   useEffect(() => {
     localStorage.setItem(LS_ACTIVE, JSON.stringify(activeIds))
   }, [activeIds])
+  useEffect(() => {
+    localStorage.setItem(LS_HISTORY, JSON.stringify(winHistory.slice(0, 10)))
+  }, [winHistory])
 
   const requireAdmin = () => {
     if (!isAdmin) {
@@ -247,6 +259,13 @@ function App() {
     const winners = winner === 'A' ? teamA : teamB
     if (winners.length === 0) return
     setLastWinner(winner)
+    const entry = {
+      key: uid() + Date.now().toString(36),
+      winner,
+      ids: winners.map((p) => p.id),
+      names: winners.map((p) => p.name),
+      at: new Date().toISOString(),
+    }
     if (isSupabaseConfigured) {
       for (const p of winners) {
         await supabase
@@ -274,6 +293,42 @@ function App() {
       setTeamA((t) => t.map((p) => map.get(p.id) ?? p))
       setTeamB((t) => t.map((p) => map.get(p.id) ?? p))
     }
+    setWinHistory((prev) => [entry, ...prev].slice(0, 10))
+  }
+
+  // deshace un registro erróneo: resta 1 win (sin bajar de 0)
+  const undoWin = async (entry) => {
+    if (!requireAdmin()) return
+    const idSet = new Set(entry.ids)
+    if (isSupabaseConfigured) {
+      for (const p of allPlayers.filter((p) => idSet.has(p.id))) {
+        await supabase
+          .from('players')
+          .update({ wins: Math.max(0, (p.wins ?? 0) - 1) })
+          .eq('id', p.id)
+      }
+      const { data } = await supabase
+        .from('players')
+        .select('*')
+        .order('created_at', { ascending: true })
+      if (data) {
+        setAllPlayers(data)
+        const map = new Map(data.map((p) => [p.id, p]))
+        setTeamA((t) => t.map((p) => map.get(p.id) ?? p))
+        setTeamB((t) => t.map((p) => map.get(p.id) ?? p))
+      }
+    } else {
+      const next = allPlayers.map((p) =>
+        idSet.has(p.id) ? { ...p, wins: Math.max(0, (p.wins ?? 0) - 1) } : p
+      )
+      const map = new Map(next.map((p) => [p.id, p]))
+      setAllPlayers(next)
+      setTeamA((t) => t.map((p) => map.get(p.id) ?? p))
+      setTeamB((t) => t.map((p) => map.get(p.id) ?? p))
+    }
+    setWinHistory((prev) => prev.filter((h) => h.key !== entry.key))
+    setLastWinner(null)
+    setStatus(`Se deshizo: Equipo ${entry.winner} (−1 win a: ${entry.names.join(', ')})`)
   }
 
   const ranking = [...allPlayers].sort((a, b) => (b.wins ?? 0) - (a.wins ?? 0))
@@ -477,14 +532,46 @@ function App() {
           </div>
         )}
         {!isAdmin && teamA.length > 0 && <p className="m3-muted">Solo el admin registra el ganador.</p>}
-        {lastWinner && (
+        {lastWinner && winHistory.length > 0 && (
           <div className="m3-winner-card">
             <span className="material-symbols-rounded">celebration</span>
-            <div>
+            <div style={{ flex: 1 }}>
               <b>¡Ganó el Equipo {lastWinner}!</b><br />
               +1 win para: {(lastWinner === 'A' ? teamA : teamB).map((p) => p.name).join(', ')}
             </div>
+            {isAdmin && (
+              <button onClick={() => undoWin(winHistory[0])} className="m3-btn m3-btn-outlined" style={{ height: 40 }} title="Deshacer este registro">
+                <span className="material-symbols-rounded">undo</span>
+                Deshacer
+              </button>
+            )}
           </div>
+        )}
+        {isAdmin && winHistory.length > 1 && (
+          <>
+            <p className="m3-support" style={{ marginTop: 14 }}>Historial reciente (por si hubo un error):</p>
+            <div className="m3-list" style={{ maxHeight: 220 }}>
+              {winHistory.slice(1).map((h) => (
+                <div key={h.key} className="m3-list-row">
+                  <span className="material-symbols-rounded">history</span>
+                  <span className="m3-list-name">
+                    Equipo {h.winner} +1 ({h.names.join(', ')})
+                  </span>
+                  <button
+                    onClick={() => undoWin(h)}
+                    className="m3-btn m3-btn-outlined"
+                    style={{ height: 36, padding: '0 12px' }}
+                    title="Deshacer este registro"
+                  >
+                    <span className="material-symbols-rounded">undo</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+        {isAdmin && winHistory.length === 0 && !lastWinner && (
+          <p className="m3-muted">Si te equivocas de equipo, deshaz el registro y vuelve a marcar el correcto.</p>
         )}
       </section>
 
