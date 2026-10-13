@@ -270,6 +270,41 @@
   flex-shrink: 0;
 }
 .m3-list-row.top .m3-rank { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+
+/* Avatar circular del ranking (reemplaza al número) */
+.m3-avatar {
+  position: relative;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  display: grid; place-items: center;
+}
+.m3-list-row.top .m3-avatar { border-color: var(--md-sys-color-primary); }
+.m3-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.m3-avatar-fallback { font-weight: 700; font-size: 20px; }
+.m3-avatar-edit {
+  position: absolute; inset: auto 0 0 0;
+  background: rgba(0,0,0,.55); color: #fff;
+  display: grid; place-items: center;
+  padding: 1px 0;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.m3-avatar:hover .m3-avatar-edit, .m3-avatar:focus-visible .m3-avatar-edit { opacity: 1; }
+.m3-avatar-edit .material-symbols-rounded { font-size: 14px; }
+.m3-name-btn {
+  background: none; border: none; padding: 0;
+  font: inherit; font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+  cursor: pointer; text-align: left;
+}
+.m3-name-btn:hover { color: var(--md-sys-color-primary); text-decoration: underline; }
 .m3-list-name { flex: 1; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .m3-wins-badge {
   display: inline-flex; align-items: center; gap: 4px;

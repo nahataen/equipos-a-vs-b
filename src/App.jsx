@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, isSupabaseConfigured } from './lib/supabase.js'
 import './App.css'
 
@@ -25,11 +25,38 @@ const SQL_PLAYERS = `create table if not exists players (
   id bigint generated always as identity primary key,
   name text not null,
   wins int default 0,
+  avatar text,
   created_at timestamptz default now()
 );
 alter table players enable row level security;
 drop policy if exists "demo" on players;
-create policy "demo" on players for all using (true) with check (true);`
+create policy "demo" on players for all using (true) with check (true);
+-- si tu tabla ya existe, solo agrega la columna:
+-- alter table players add column if not exists avatar text;`
+
+// comprime la foto a 128x128 para guardarla liviana
+const compressAvatar = (file) =>
+  new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      const S = 128
+      const canvas = document.createElement('canvas')
+      canvas.width = S
+      canvas.height = S
+      const ctx = canvas.getContext('2d')
+      const side = Math.min(img.width, img.height)
+      ctx.drawImage(
+        img,
+        (img.width - side) / 2, (img.height - side) / 2, side, side,
+        0, 0, S, S
+      )
+      URL.revokeObjectURL(url)
+      resolve(canvas.toDataURL('image/jpeg', 0.72))
+    }
+    img.onerror = reject
+    img.src = url
+  })
 
 function App() {
   // ranking histórico (nunca se borra al quitar del partido)
@@ -50,6 +77,9 @@ function App() {
       return []
     }
   })
+  // foto de perfil: qué jugador se está editando
+  const [avatarFor, setAvatarFor] = useState(null)
+  const fileRef = useRef(null)
 
   // admin
   const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem(LS_ADMIN) === '1')
@@ -331,6 +361,49 @@ function App() {
     setStatus(`Se deshizo: Equipo ${entry.winner} (−1 win a: ${entry.names.join(', ')})`)
   }
 
+  // clic en foto/nombre del ranking: solo admin puede asignar foto
+  const onAvatarClick = (p) => {
+    if (!requireAdmin()) return
+    setAvatarFor(p.id)
+    fileRef.current?.click()
+  }
+
+  const onAvatarFile = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file || !avatarFor) return
+    if (!file.type.startsWith('image/')) {
+      setStatus('El archivo debe ser una imagen')
+      return
+    }
+    try {
+      const dataUrl = await compressAvatar(file)
+      const applyTo = (list) =>
+        list.map((p) => (p.id === avatarFor ? { ...p, avatar: dataUrl } : p))
+      if (isSupabaseConfigured) {
+        const { error } = await supabase
+          .from('players')
+          .update({ avatar: dataUrl })
+          .eq('id', avatarFor)
+        if (error) {
+          setStatus(
+            error.message.includes('avatar')
+              ? 'Corre en Supabase → SQL: alter table players add column if not exists avatar text;'
+              : error.message
+          )
+          return
+        }
+      }
+      setAllPlayers((prev) => applyTo(prev))
+      setTeamA((t) => applyTo(t))
+      setTeamB((t) => applyTo(t))
+      setStatus('Foto actualizada')
+    } catch {
+      setStatus('No se pudo leer la imagen')
+    }
+    setAvatarFor(null)
+  }
+
   const ranking = [...allPlayers].sort((a, b) => (b.wins ?? 0) - (a.wins ?? 0))
   const mode =
     activePlayers.length === 0
@@ -587,9 +660,33 @@ function App() {
           <div className="m3-list">
             {ranking.map((p, i) => (
               <div key={p.id} className={`m3-list-row ${i === 0 ? 'top' : ''}`}>
-                <span className="m3-rank">{i + 1}</span>
+                <button
+                  onClick={() => onAvatarClick(p)}
+                  className="m3-avatar"
+                  title={isAdmin ? `Cambiar foto de ${p.name}` : p.name}
+                  aria-label={`Foto de ${p.name}`}
+                >
+                  {p.avatar ? (
+                    <img src={p.avatar} alt={p.name} />
+                  ) : (
+                    <span className="m3-avatar-fallback">
+                      {p.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                  {isAdmin && (
+                    <span className="m3-avatar-edit">
+                      <span className="material-symbols-rounded">photo_camera</span>
+                    </span>
+                  )}
+                </button>
                 <span className="m3-list-name">
-                  {p.name}
+                  {isAdmin ? (
+                    <button onClick={() => onAvatarClick(p)} className="m3-name-btn" title={`Cambiar foto de ${p.name}`}>
+                      {p.name}
+                    </button>
+                  ) : (
+                    p.name
+                  )}
                   {!activeIds.includes(p.id) && <span className="m3-muted"> • fuera</span>}
                 </span>
                 <span className="m3-wins-badge">
@@ -613,6 +710,13 @@ function App() {
       </section>
         </div>
       </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={onAvatarFile}
+      />
     </main>
   )
 }
