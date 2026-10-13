@@ -77,6 +77,9 @@ body {
   font-family: 'Roboto', system-ui, sans-serif;
   background: var(--md-sys-color-surface);
   color: var(--md-sys-color-on-surface);
+  overflow-x: clip;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 #root {

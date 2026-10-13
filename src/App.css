@@ -1,8 +1,10 @@
 /* ===== M3 layout ===== */
 .m3-page {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 16px 96px;
+  overflow-x: clip;
 }
 
 /* Dos columnas: izquierda partido+ruleta, derecha ganador+ranking */
@@ -12,8 +14,9 @@
   gap: 16px;
   align-items: stretch;
   margin-top: 4px;
+  min-width: 0;
 }
-.m3-col { display: flex; flex-direction: column; height: 100%; }
+.m3-col { display: flex; flex-direction: column; height: 100%; min-width: 0; }
 .m3-col > .m3-card:last-child { flex: 1; }
 .m3-col .m3-card:last-child { margin-bottom: 0; }
 
@@ -29,10 +32,18 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
   padding: 12px 4px;
-  background: color-mix(in srgb, var(--md-sys-color-surface) 85%, transparent);
+  background: var(--md-sys-color-surface);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .m3-topbar {
+    background: color-mix(in srgb, var(--md-sys-color-surface) 85%, transparent);
+  }
+}
+.m3-topbar > div { min-width: 0; }
 .m3-topbar-icon {
   width: 48px;
   height: 48px;
@@ -102,8 +113,8 @@
 .m3-support { font-size: 15px; color: var(--md-sys-color-on-surface-variant); margin: 4px 0 12px; }
 
 /* Text field + buttons */
-.m3-input-row { display: flex; gap: 12px; }
-.m3-field { position: relative; flex: 1; }
+.m3-input-row { display: flex; gap: 12px; min-width: 0; }
+.m3-field { position: relative; flex: 1; min-width: 0; }
 .m3-field .material-symbols-rounded {
   position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
   color: var(--md-sys-color-on-surface-variant);
@@ -177,11 +188,12 @@
 /* Teams */
 .m3-fab-row { display: flex; gap: 12px; align-items: center; }
 .m3-fab-row .m3-btn { flex: 1; height: 56px; font-size: 15px; }
-.m3-teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch; margin-top: 16px; }
+.m3-teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch; margin-top: 16px; min-width: 0; }
 .m3-team {
   border-radius: var(--md-shape-l);
   padding: 14px;
   min-height: 140px;
+  min-width: 0;
   border: 1px solid var(--md-sys-color-outline-variant);
 }
 .m3-team.a { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
@@ -228,10 +240,14 @@
 /* Ranking list */
 .m3-list {
   display: flex; flex-direction: column; gap: 2px; margin-top: 8px;
-  max-height: 420px;
+  max-height: min(58vh, 520px);
+  min-height: 120px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 4px;
   scrollbar-width: thin;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .m3-list::-webkit-scrollbar { width: 8px; }
 .m3-list::-webkit-scrollbar-thumb {
@@ -242,6 +258,7 @@
   display: flex; align-items: center; gap: 12px;
   padding: 10px 8px;
   border-radius: var(--md-shape-m);
+  min-width: 0;
 }
 .m3-list-row:hover { background: var(--md-sys-color-surface-container); }
 .m3-list-row.top { background: var(--md-sys-color-primary-container); border-radius: var(--md-shape-m); }
@@ -250,9 +267,10 @@
   background: var(--md-sys-color-surface-container-highest);
   display: grid; place-items: center;
   font-weight: 700; font-size: 14px;
+  flex-shrink: 0;
 }
 .m3-list-row.top .m3-rank { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
-.m3-list-name { flex: 1; font-weight: 500; }
+.m3-list-name { flex: 1; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .m3-wins-badge {
   display: inline-flex; align-items: center; gap: 4px;
   background: var(--md-sys-color-secondary-container);
@@ -261,6 +279,8 @@
   padding: 6px 12px;
   font-weight: 700;
   font-size: 13px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .m3-wins-badge .material-symbols-rounded { font-size: 16px; }
 
@@ -293,8 +313,17 @@
 }
 
 @media (max-width: 640px) {
+  .m3-page { padding: 0 12px 64px; }
+  .m3-card { padding: 16px; border-radius: 20px; }
+  .m3-topbar { gap: 8px; }
+  .m3-topbar h1 { font-size: 22px; line-height: 28px; }
+  .m3-mode-badge { margin-left: 0; }
   .m3-input-row { flex-direction: column; }
+  .m3-input-row .m3-btn { width: 100%; }
+  .m3-fab-row { flex-direction: column; align-items: stretch; }
   .m3-teams { grid-template-columns: 1fr; }
   .m3-vs { justify-self: center; }
   .m3-winner-actions { flex-direction: column; }
+  .m3-list { max-height: none; }
+  .m3-list-row { gap: 8px; }
 }
