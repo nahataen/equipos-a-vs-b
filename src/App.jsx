@@ -79,7 +79,17 @@ function App() {
   })
   // foto de perfil: qué jugador se está editando
   const [avatarFor, setAvatarFor] = useState(null)
+  const [preview, setPreview] = useState(null) // {src, name} para visitantes
   const fileRef = useRef(null)
+
+  // Esc cierra la vista previa
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') setPreview(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   // admin
   const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem(LS_ADMIN) === '1')
@@ -361,11 +371,15 @@ function App() {
     setStatus(`Se deshizo: Equipo ${entry.winner} (−1 win a: ${entry.names.join(', ')})`)
   }
 
-  // clic en foto/nombre del ranking: solo admin puede asignar foto
+  // clic en foto/nombre del ranking:
+  // admin → asignar foto | visitante → verla en grande (sin editar)
   const onAvatarClick = (p) => {
-    if (!requireAdmin()) return
-    setAvatarFor(p.id)
-    fileRef.current?.click()
+    if (isAdmin) {
+      setAvatarFor(p.id)
+      fileRef.current?.click()
+      return
+    }
+    if (p.avatar) setPreview({ src: p.avatar, name: p.name })
   }
 
   const onAvatarFile = async (e) => {
@@ -684,6 +698,10 @@ function App() {
                     <button onClick={() => onAvatarClick(p)} className="m3-name-btn" title={`Cambiar foto de ${p.name}`}>
                       {p.name}
                     </button>
+                  ) : p.avatar ? (
+                    <button onClick={() => onAvatarClick(p)} className="m3-name-btn" title="Ver foto">
+                      {p.name}
+                    </button>
                   ) : (
                     p.name
                   )}
@@ -717,6 +735,18 @@ function App() {
         style={{ display: 'none' }}
         onChange={onAvatarFile}
       />
+      {preview && (
+        <div className="m3-lightbox" onClick={() => setPreview(null)}>
+          <div className="m3-lightbox-card" onClick={(e) => e.stopPropagation()}>
+            <img src={preview.src} alt={preview.name} />
+            <p>{preview.name}</p>
+            <button onClick={() => setPreview(null)} className="m3-btn m3-btn-tonal">
+              <span className="material-symbols-rounded">close</span>
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
