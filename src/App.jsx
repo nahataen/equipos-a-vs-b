@@ -28,6 +28,9 @@ const LOSS_PTS = 20
 const RANKS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Esmeralda', 'Diamante', 'Maestro']
 const getPoints = (p) => p.points ?? (p.wins ?? 0) * WIN_PTS
 const getLosses = (p) => p.losses ?? 0
+const getStreak = (p) => p.streak ?? 0
+const getPentas = (p) => p.pentakills ?? 0
+const FIRE_STREAK = 2 // racha mínima para mostrar fuego
 const getRank = (points) => {
   const i = Math.min(Math.floor(Math.max(0, points) / 100), RANKS.length - 1)
   return { name: RANKS[i], lp: Math.max(0, points) % 100 }
@@ -39,6 +42,8 @@ const SQL_PLAYERS = `create table if not exists players (
   wins int default 0,
   losses int default 0,
   points int default 0,
+  streak int default 0,
+  pentakills int default 0,
   avatar text,
   created_at timestamptz default now()
 );
@@ -48,6 +53,8 @@ create policy "demo" on players for all using (true) with check (true);
 -- si tu tabla ya existe, corre esto para migrar a ranked estilo Riot:
 -- alter table players add column if not exists losses int default 0;
 -- alter table players add column if not exists points int default 0;
+-- alter table players add column if not exists streak int default 0;
+-- alter table players add column if not exists pentakills int default 0;
 -- alter table players add column if not exists avatar text;
 -- update players set points = wins * 20 where points = 0 and wins > 0;`
 
@@ -225,7 +232,7 @@ function App() {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase
         .from('players')
-        .insert({ name: clean, wins: 0, losses: 0, points: 0 })
+        .insert({ name: clean, wins: 0, losses: 0, points: 0, streak: 0, pentakills: 0 })
         .select()
       if (error) setStatus(error.message)
       else if (data && data[0]) {
@@ -233,7 +240,7 @@ function App() {
         setActiveIds((prev) => [...prev, data[0].id])
       }
     } else {
-      const np = { id: uid(), name: clean, wins: 0, losses: 0, points: 0 }
+      const np = { id: uid(), name: clean, wins: 0, losses: 0, points: 0, streak: 0, pentakills: 0 }
       setAllPlayers((prev) => [...prev, np])
       setActiveIds((prev) => [...prev, np.id])
     }
@@ -325,27 +332,28 @@ function App() {
       loserIds: losers.map((p) => p.id),
       names: winners.map((p) => p.name),
       loserNames: losers.map((p) => p.name),
+      prevStreaks: Object.fromEntries(allPlayers.map((p) => [p.id, getStreak(p)])),
       at: new Date().toISOString(),
     }
     const applyRanked = (list) =>
       list.map((p) => {
         if (entry.ids.includes(p.id))
-          return { ...p, wins: (p.wins ?? 0) + 1, points: getPoints(p) + WIN_PTS }
+          return { ...p, wins: (p.wins ?? 0) + 1, points: getPoints(p) + WIN_PTS, streak: getStreak(p) + 1 }
         if (entry.loserIds.includes(p.id))
-          return { ...p, losses: getLosses(p) + 1, points: Math.max(0, getPoints(p) - LOSS_PTS) }
+          return { ...p, losses: getLosses(p) + 1, points: Math.max(0, getPoints(p) - LOSS_PTS), streak: 0 }
         return p
       })
     if (isSupabaseConfigured) {
       for (const p of winners) {
         await supabase
           .from('players')
-          .update({ wins: (p.wins ?? 0) + 1, points: getPoints(p) + WIN_PTS })
+          .update({ wins: (p.wins ?? 0) + 1, points: getPoints(p) + WIN_PTS, streak: getStreak(p) + 1 })
           .eq('id', p.id)
       }
       for (const p of losers) {
         await supabase
           .from('players')
-          .update({ losses: getLosses(p) + 1, points: Math.max(0, getPoints(p) - LOSS_PTS) })
+          .update({ losses: getLosses(p) + 1, points: Math.max(0, getPoints(p) - LOSS_PTS), streak: 0 })
           .eq('id', p.id)
       }
       const { data } = await supabase
@@ -368,22 +376,24 @@ function App() {
     setWinHistory((prev) => [entry, ...prev].slice(0, 10))
   }
 
-  // deshace un registro erróneo: ganadores −WIN_PTS, perdedores +LOSS_PTS
+  // deshace un registro erróneo: ganadores −WIN_PTS, perdedores +LOSS_PTS, rachas restauradas
   const undoWin = async (entry) => {
     if (!requireAdmin()) return
     const idSet = new Set(entry.ids)
     const loserSet = new Set(entry.loserIds ?? [])
+    const prev = entry.prevStreaks ?? {}
+    const restoreStreak = (p) => (prev[p.id] ?? Math.max(0, getStreak(p) - (idSet.has(p.id) ? 1 : 0)))
     if (isSupabaseConfigured) {
       for (const p of allPlayers.filter((p) => idSet.has(p.id))) {
         await supabase
           .from('players')
-          .update({ wins: Math.max(0, (p.wins ?? 0) - 1), points: Math.max(0, getPoints(p) - WIN_PTS) })
+          .update({ wins: Math.max(0, (p.wins ?? 0) - 1), points: Math.max(0, getPoints(p) - WIN_PTS), streak: restoreStreak(p) })
           .eq('id', p.id)
       }
       for (const p of allPlayers.filter((p) => loserSet.has(p.id))) {
         await supabase
           .from('players')
-          .update({ losses: Math.max(0, getLosses(p) - 1), points: getPoints(p) + LOSS_PTS })
+          .update({ losses: Math.max(0, getLosses(p) - 1), points: getPoints(p) + LOSS_PTS, streak: restoreStreak(p) })
           .eq('id', p.id)
       }
       const { data } = await supabase
@@ -399,9 +409,9 @@ function App() {
     } else {
       const next = allPlayers.map((p) => {
         if (idSet.has(p.id))
-          return { ...p, wins: Math.max(0, (p.wins ?? 0) - 1), points: Math.max(0, getPoints(p) - WIN_PTS) }
+          return { ...p, wins: Math.max(0, (p.wins ?? 0) - 1), points: Math.max(0, getPoints(p) - WIN_PTS), streak: restoreStreak(p) }
         if (loserSet.has(p.id))
-          return { ...p, losses: Math.max(0, getLosses(p) - 1), points: getPoints(p) + LOSS_PTS }
+          return { ...p, losses: Math.max(0, getLosses(p) - 1), points: getPoints(p) + LOSS_PTS, streak: restoreStreak(p) }
         return p
       })
       const map = new Map(next.map((p) => [p.id, p]))
@@ -412,6 +422,27 @@ function App() {
     setWinHistory((prev) => prev.filter((h) => h.key !== entry.key))
     setLastWinner(null)
     setStatus(`Se deshizo: Equipo ${entry.winner} (−1 win a: ${entry.names.join(', ')})`)
+  }
+
+  // contador de pentakills (solo admin, +1 / −1 sin bajar de 0)
+  const bumpPenta = async (p, delta) => {
+    if (!requireAdmin()) return
+    const next = Math.max(0, getPentas(p) + delta)
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.from('players').update({ pentakills: next }).eq('id', p.id)
+      if (error) {
+        setStatus(
+          error.message.includes('pentakills')
+            ? 'Corre en Supabase → SQL: alter table players add column if not exists pentakills int default 0;'
+            : error.message
+        )
+        return
+      }
+    }
+    const applyTo = (list) => list.map((x) => (x.id === p.id ? { ...x, pentakills: next } : x))
+    setAllPlayers((prev) => applyTo(prev))
+    setTeamA((t) => applyTo(t))
+    setTeamB((t) => applyTo(t))
   }
 
   // clic en foto/nombre del ranking:
@@ -663,7 +694,12 @@ function App() {
         )}
         {!isAdmin && teamA.length > 0 && <p className="m3-muted">Solo el admin registra el ganador.</p>}
         {lastWinner && winHistory.length > 0 && (
-          <div className="m3-winner-card">
+          <div className="m3-winner-card m3-confetti">
+            <span className="m3-confetti-particles" aria-hidden="true">
+              {Array.from({ length: 16 }).map((_, k) => (
+                <i key={k} style={{ left: `${(k * 61) % 100}%`, animationDelay: `${(k % 8) * 0.12}s` }} />
+              ))}
+            </span>
             <span className="material-symbols-rounded">celebration</span>
             <div style={{ flex: 1 }}>
               <b>¡Ganó el Equipo {lastWinner}!</b><br />
@@ -721,10 +757,17 @@ function App() {
               const r = getRank(pts)
               const w = p.wins ?? 0
               const l = getLosses(p)
+              const st = getStreak(p)
+              const pe = getPentas(p)
               const total = w + l
               const wr = total ? Math.round((w / total) * 100) : 0
+              const onFire = st >= FIRE_STREAK
               return (
-              <div key={p.id} className={`m3-list-row ${i === 0 ? 'top' : ''}`}>
+              <div
+                key={p.id}
+                className={`m3-list-row rank-in ${i === 0 ? 'top' : ''} ${onFire ? 'on-fire' : ''}`}
+                style={{ animationDelay: `${Math.min(i, 10) * 0.05}s` }}
+              >
                 <button
                   onClick={() => onAvatarClick(p)}
                   className="m3-avatar"
@@ -758,6 +801,18 @@ function App() {
                   )}
                   <br />
                   <span className="m3-muted">{r.name} {r.lp} LP • {w}W {l}L • {wr}%</span>
+                  {onFire && (
+                    <span className="m3-fire" title={`Racha de ${st} victorias`}>
+                      <span className="material-symbols-rounded">local_fire_department</span>
+                      x{st}
+                    </span>
+                  )}
+                  {pe > 0 && (
+                    <span className="m3-penta" title={`${pe} pentakills`}>
+                      <span className="material-symbols-rounded">swords</span>
+                      Penta x{pe}
+                    </span>
+                  )}
                   {!activeIds.includes(p.id) && <span className="m3-muted"> • fuera</span>}
                 </span>
                 <span className="m3-wins-badge">
@@ -765,14 +820,20 @@ function App() {
                   {pts} pts
                 </span>
                 {isAdmin && (
-                  <button
-                    onClick={() => deleteFromRanking(p.id, p.name)}
-                    className="m3-btn m3-btn-outlined"
-                    style={{ height: 36, padding: '0 12px' }}
-                    title="Borrar definitivo del ranking"
-                  >
-                    <span className="material-symbols-rounded">delete</span>
-                  </button>
+                  <>
+                    <span className="m3-penta-stepper" title="Contador de pentakills">
+                      <button onClick={() => bumpPenta(p, -1)} aria-label={`quitar pentakill a ${p.name}`}>−</button>
+                      <button onClick={() => bumpPenta(p, 1)} aria-label={`sumar pentakill a ${p.name}`}>+</button>
+                    </span>
+                    <button
+                      onClick={() => deleteFromRanking(p.id, p.name)}
+                      className="m3-btn m3-btn-outlined"
+                      style={{ height: 36, padding: '0 12px' }}
+                      title="Borrar definitivo del ranking"
+                    >
+                      <span className="material-symbols-rounded">delete</span>
+                    </button>
+                  </>
                 )}
               </div>
               )

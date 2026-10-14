@@ -371,6 +371,68 @@
   font-size: 14px; box-shadow: var(--md-elev-3);
 }
 
+/* ===== Ranking animado: entrada, racha en fuego, pentas y confetti ===== */
+.rank-in { animation: rankIn .45s ease both; }
+@keyframes rankIn {
+  from { opacity: 0; transform: translateY(10px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+.m3-list-row.on-fire {
+  background: linear-gradient(90deg, rgba(255,122,26,.16), transparent 70%);
+  border: 1px solid rgba(255,122,26,.45);
+}
+.m3-fire {
+  display: inline-flex; align-items: center; gap: 2px;
+  margin-left: 8px; padding: 2px 10px; border-radius: 999px;
+  background: linear-gradient(180deg, #ff6a00, #c81e1e);
+  color: #fff; font-weight: 800; font-size: 12px;
+  animation: fireFlicker .7s ease-in-out infinite alternate;
+}
+.m3-fire .material-symbols-rounded { font-size: 15px; }
+@keyframes fireFlicker {
+  from { transform: scale(1) rotate(-2deg); filter: brightness(1); }
+  to { transform: scale(1.1) rotate(2deg); filter: brightness(1.25); }
+}
+.m3-avatar { transition: transform .2s; }
+.m3-list-row.on-fire .m3-avatar {
+  border-color: #ff6a00;
+  box-shadow: 0 0 0 2px rgba(255,106,0,.5), 0 0 14px rgba(255,106,0,.7);
+  animation: fireFlicker .7s ease-in-out infinite alternate;
+}
+.m3-penta {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-left: 8px; padding: 2px 10px; border-radius: 999px;
+  background: #2b1b4d; color: #d8b4fe;
+  border: 1px solid #a855f7;
+  font-weight: 700; font-size: 12px;
+}
+.m3-penta .material-symbols-rounded { font-size: 14px; }
+.m3-penta-stepper { display: inline-flex; border: 1px solid var(--md-sys-color-outline); border-radius: 999px; overflow: hidden; flex-shrink: 0; }
+.m3-penta-stepper button {
+  border: none; background: transparent; cursor: pointer;
+  color: var(--md-sys-color-primary); font-size: 16px; font-weight: 700;
+  width: 30px; height: 36px;
+}
+.m3-penta-stepper button:hover { background: var(--md-sys-color-secondary-container); }
+/* Confetti en la tarjeta de ganador */
+.m3-confetti { position: relative; overflow: hidden; }
+.m3-confetti-particles { position: absolute; inset: 0; pointer-events: none; }
+.m3-confetti-particles i {
+  position: absolute; top: -10px; width: 7px; height: 11px; border-radius: 2px;
+  background: #ffd54d;
+  animation: confettiFall 1.6s ease-in infinite;
+}
+.m3-confetti-particles i:nth-child(3n) { background: #4dd0e1; }
+.m3-confetti-particles i:nth-child(3n+1) { background: #f06292; }
+.m3-confetti-particles i:nth-child(4n) { border-radius: 50%; width: 8px; height: 8px; }
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0); opacity: 1; }
+  100% { transform: translateY(140px) rotate(320deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rank-in, .m3-fire, .m3-list-row.on-fire .m3-avatar, .m3-confetti-particles i { animation: none; }
+}
+
 @media (max-width: 640px) {
   .m3-page { padding: 0 12px 64px; }
   .m3-card { padding: 16px; border-radius: 20px; }
