@@ -21,18 +21,35 @@ const shuffle = (arr) => {
   return a
 }
 
+const WIN_PTS = 20
+const LOSS_PTS = 15
+
+// Estilo Riot: 100 pts por división, LP = resto dentro del rango
+const RANKS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Esmeralda', 'Diamante', 'Maestro']
+const getPoints = (p) => p.points ?? (p.wins ?? 0) * WIN_PTS
+const getLosses = (p) => p.losses ?? 0
+const getRank = (points) => {
+  const i = Math.min(Math.floor(Math.max(0, points) / 100), RANKS.length - 1)
+  return { name: RANKS[i], lp: Math.max(0, points) % 100 }
+}
+
 const SQL_PLAYERS = `create table if not exists players (
   id bigint generated always as identity primary key,
   name text not null,
   wins int default 0,
+  losses int default 0,
+  points int default 0,
   avatar text,
   created_at timestamptz default now()
 );
 alter table players enable row level security;
 drop policy if exists "demo" on players;
 create policy "demo" on players for all using (true) with check (true);
--- si tu tabla ya existe, solo agrega la columna:
--- alter table players add column if not exists avatar text;`
+-- si tu tabla ya existe, corre esto para migrar a ranked estilo Riot:
+-- alter table players add column if not exists losses int default 0;
+-- alter table players add column if not exists points int default 0;
+-- alter table players add column if not exists avatar text;
+-- update players set points = wins * 20 where points = 0 and wins > 0;`
 
 // comprime la foto a 512px para que se vea nítida en grande y en chico
 const compressAvatar = (file) =>
@@ -208,7 +225,7 @@ function App() {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase
         .from('players')
-        .insert({ name: clean, wins: 0 })
+        .insert({ name: clean, wins: 0, losses: 0, points: 0 })
         .select()
       if (error) setStatus(error.message)
       else if (data && data[0]) {
@@ -216,7 +233,7 @@ function App() {
         setActiveIds((prev) => [...prev, data[0].id])
       }
     } else {
-      const np = { id: uid(), name: clean, wins: 0 }
+      const np = { id: uid(), name: clean, wins: 0, losses: 0, points: 0 }
       setAllPlayers((prev) => [...prev, np])
       setActiveIds((prev) => [...prev, np.id])
     }
@@ -294,23 +311,41 @@ function App() {
     }, 110)
   }
 
+  // Estilo Riot: ganadores +WIN_PTS, perdedores −LOSS_PTS (piso 0)
   const registerWin = async (winner) => {
     if (!requireAdmin()) return
     const winners = winner === 'A' ? teamA : teamB
+    const losers = winner === 'A' ? teamB : teamA
     if (winners.length === 0) return
     setLastWinner(winner)
     const entry = {
       key: uid() + Date.now().toString(36),
       winner,
       ids: winners.map((p) => p.id),
+      loserIds: losers.map((p) => p.id),
       names: winners.map((p) => p.name),
+      loserNames: losers.map((p) => p.name),
       at: new Date().toISOString(),
     }
+    const applyRanked = (list) =>
+      list.map((p) => {
+        if (entry.ids.includes(p.id))
+          return { ...p, wins: (p.wins ?? 0) + 1, points: getPoints(p) + WIN_PTS }
+        if (entry.loserIds.includes(p.id))
+          return { ...p, losses: getLosses(p) + 1, points: Math.max(0, getPoints(p) - LOSS_PTS) }
+        return p
+      })
     if (isSupabaseConfigured) {
       for (const p of winners) {
         await supabase
           .from('players')
-          .update({ wins: (p.wins ?? 0) + 1 })
+          .update({ wins: (p.wins ?? 0) + 1, points: getPoints(p) + WIN_PTS })
+          .eq('id', p.id)
+      }
+      for (const p of losers) {
+        await supabase
+          .from('players')
+          .update({ losses: getLosses(p) + 1, points: Math.max(0, getPoints(p) - LOSS_PTS) })
           .eq('id', p.id)
       }
       const { data } = await supabase
@@ -324,10 +359,7 @@ function App() {
         setTeamB((t) => t.map((p) => map.get(p.id) ?? p))
       }
     } else {
-      const ids = new Set(winners.map((p) => p.id))
-      const next = allPlayers.map((p) =>
-        ids.has(p.id) ? { ...p, wins: (p.wins ?? 0) + 1 } : p
-      )
+      const next = applyRanked(allPlayers)
       const map = new Map(next.map((p) => [p.id, p]))
       setAllPlayers(next)
       setTeamA((t) => t.map((p) => map.get(p.id) ?? p))
@@ -336,15 +368,22 @@ function App() {
     setWinHistory((prev) => [entry, ...prev].slice(0, 10))
   }
 
-  // deshace un registro erróneo: resta 1 win (sin bajar de 0)
+  // deshace un registro erróneo: ganadores −WIN_PTS, perdedores +LOSS_PTS
   const undoWin = async (entry) => {
     if (!requireAdmin()) return
     const idSet = new Set(entry.ids)
+    const loserSet = new Set(entry.loserIds ?? [])
     if (isSupabaseConfigured) {
       for (const p of allPlayers.filter((p) => idSet.has(p.id))) {
         await supabase
           .from('players')
-          .update({ wins: Math.max(0, (p.wins ?? 0) - 1) })
+          .update({ wins: Math.max(0, (p.wins ?? 0) - 1), points: Math.max(0, getPoints(p) - WIN_PTS) })
+          .eq('id', p.id)
+      }
+      for (const p of allPlayers.filter((p) => loserSet.has(p.id))) {
+        await supabase
+          .from('players')
+          .update({ losses: Math.max(0, getLosses(p) - 1), points: getPoints(p) + LOSS_PTS })
           .eq('id', p.id)
       }
       const { data } = await supabase
@@ -358,9 +397,13 @@ function App() {
         setTeamB((t) => t.map((p) => map.get(p.id) ?? p))
       }
     } else {
-      const next = allPlayers.map((p) =>
-        idSet.has(p.id) ? { ...p, wins: Math.max(0, (p.wins ?? 0) - 1) } : p
-      )
+      const next = allPlayers.map((p) => {
+        if (idSet.has(p.id))
+          return { ...p, wins: Math.max(0, (p.wins ?? 0) - 1), points: Math.max(0, getPoints(p) - WIN_PTS) }
+        if (loserSet.has(p.id))
+          return { ...p, losses: Math.max(0, getLosses(p) - 1), points: getPoints(p) + LOSS_PTS }
+        return p
+      })
       const map = new Map(next.map((p) => [p.id, p]))
       setAllPlayers(next)
       setTeamA((t) => t.map((p) => map.get(p.id) ?? p))
@@ -418,7 +461,7 @@ function App() {
     setAvatarFor(null)
   }
 
-  const ranking = [...allPlayers].sort((a, b) => (b.wins ?? 0) - (a.wins ?? 0))
+  const ranking = [...allPlayers].sort((a, b) => getPoints(b) - getPoints(a) || (b.wins ?? 0) - (a.wins ?? 0))
   const mode =
     activePlayers.length === 0
       ? '—'
@@ -502,7 +545,7 @@ function App() {
         </div>
         <p className="m3-support">
           {isAdmin
-            ? 'Crea jugadores o mete a alguien del ranking. Quitar del partido NO borra sus wins.'
+            ? 'Crea jugadores o mete a alguien del ranking. Quitar del partido NO borra sus puntos.'
             : 'Modo lectura: pide al admin para cambiar jugadores.'}
         </p>
         <form onSubmit={addPlayer} className="m3-input-row">
@@ -526,8 +569,8 @@ function App() {
             <span key={p.id} className="m3-chip">
               {p.name}
               <span className="m3-wins-badge" style={{ padding: '2px 8px' }}>
-                <span className="material-symbols-rounded trophy">trophy</span>
-                {p.wins ?? 0}
+                <span className="material-symbols-rounded trophy">military_tech</span>
+                {getPoints(p)}
               </span>
               {isAdmin && (
                 <button onClick={() => removeFromMatch(p.id)} title="quitar del partido (conserva ranking)" aria-label={`quitar ${p.name} del partido`}>
@@ -545,7 +588,7 @@ function App() {
             <div className="m3-chips">
               {inactivePlayers.map((p) => (
                 <span key={p.id} className="m3-chip" style={{ opacity: .75 }}>
-                  {p.name} ({p.wins ?? 0})
+                  {p.name} ({getPoints(p)} pts)
                   {isAdmin && (
                     <button onClick={() => joinMatch(p.id)} title="meter al partido" aria-label={`meter ${p.name}`}>
                       <span className="material-symbols-rounded">add</span>
@@ -624,7 +667,8 @@ function App() {
             <span className="material-symbols-rounded">celebration</span>
             <div style={{ flex: 1 }}>
               <b>¡Ganó el Equipo {lastWinner}!</b><br />
-              +1 win para: {(lastWinner === 'A' ? teamA : teamB).map((p) => p.name).join(', ')}
+              +{WIN_PTS} pts para: {(lastWinner === 'A' ? teamA : teamB).map((p) => p.name).join(', ')}<br />
+              −{LOSS_PTS} pts para: {(lastWinner === 'A' ? teamB : teamA).map((p) => p.name).join(', ') || '—'}
             </div>
             {isAdmin && (
               <button onClick={() => undoWin(winHistory[0])} className="m3-btn m3-btn-outlined" style={{ height: 40 }} title="Deshacer este registro">
@@ -642,7 +686,7 @@ function App() {
                 <div key={h.key} className="m3-list-row">
                   <span className="material-symbols-rounded">history</span>
                   <span className="m3-list-name">
-                    Equipo {h.winner} +1 ({h.names.join(', ')})
+                    Equipo {h.winner} +{WIN_PTS}/−{LOSS_PTS} ({h.names.join(', ')})
                   </span>
                   <button
                     onClick={() => undoWin(h)}
@@ -667,12 +711,19 @@ function App() {
           <span className="material-symbols-rounded">leaderboard</span>
           <h2>Ranking histórico</h2>
         </div>
-        <p className="m3-support">Se conserva aunque salgan del partido. Solo admin puede borrar definitivo.</p>
+        <p className="m3-support">Se conserva aunque salgan del partido. Ganar +{WIN_PTS} pts, perder −{LOSS_PTS} pts. Solo admin puede borrar definitivo.</p>
         {ranking.length === 0 ? (
           <p className="m3-muted">Sin datos aún.</p>
         ) : (
           <div className="m3-list">
-            {ranking.map((p, i) => (
+            {ranking.map((p, i) => {
+              const pts = getPoints(p)
+              const r = getRank(pts)
+              const w = p.wins ?? 0
+              const l = getLosses(p)
+              const total = w + l
+              const wr = total ? Math.round((w / total) * 100) : 0
+              return (
               <div key={p.id} className={`m3-list-row ${i === 0 ? 'top' : ''}`}>
                 <button
                   onClick={() => onAvatarClick(p)}
@@ -705,11 +756,13 @@ function App() {
                   ) : (
                     p.name
                   )}
+                  <br />
+                  <span className="m3-muted">{r.name} {r.lp} LP • {w}W {l}L • {wr}%</span>
                   {!activeIds.includes(p.id) && <span className="m3-muted"> • fuera</span>}
                 </span>
                 <span className="m3-wins-badge">
-                  <span className="material-symbols-rounded">trophy</span>
-                  {p.wins ?? 0} wins
+                  <span className="material-symbols-rounded">military_tech</span>
+                  {pts} pts
                 </span>
                 {isAdmin && (
                   <button
@@ -722,7 +775,8 @@ function App() {
                   </button>
                 )}
               </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </section>
