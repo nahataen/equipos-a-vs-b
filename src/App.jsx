@@ -106,10 +106,13 @@ function App() {
   const [preview, setPreview] = useState(null) // {src, name} para visitantes
   const fileRef = useRef(null)
 
-  // Esc cierra la vista previa
+  // Esc cierra la vista previa y el login
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'Escape') setPreview(null)
+      if (e.key === 'Escape') {
+        setPreview(null)
+        setShowLogin(false)
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -119,6 +122,8 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem(LS_ADMIN) === '1')
   const [pw, setPw] = useState('')
   const [showLogin, setShowLogin] = useState(false)
+  const [showPw, setShowPw] = useState(false)
+  const [loginError, setLoginError] = useState(false)
 
   const activePlayers = useMemo(
     () => allPlayers.filter((p) => activeIds.includes(p.id)),
@@ -188,16 +193,22 @@ function App() {
     return true
   }
 
+  const closeLogin = () => {
+    setShowLogin(false)
+    setPw('')
+    setLoginError(false)
+    setShowPw(false)
+  }
+
   const login = (e) => {
     e.preventDefault()
     if (pw === ADMIN_PASSWORD) {
       setIsAdmin(true)
       sessionStorage.setItem(LS_ADMIN, '1')
-      setShowLogin(false)
-      setPw('')
+      closeLogin()
       setStatus('')
     } else {
-      setStatus('Contraseña incorrecta')
+      setLoginError(true)
     }
   }
   const logout = () => {
@@ -515,36 +526,60 @@ function App() {
             Admin
           </button>
         ) : (
-          <button onClick={() => setShowLogin((v) => !v)} className="m3-btn m3-btn-outlined" title="Entrar como admin">
-            <span className="material-symbols-rounded">lock</span>
-            Ver
+          <button onClick={() => setShowLogin(true)} className="m3-btn m3-btn-outlined" title="Entrar como admin">
+            <span className="material-symbols-rounded">login</span>
+            Entrar
           </button>
         )}
       </header>
 
       {showLogin && !isAdmin && (
-        <section className="m3-card">
-          <div className="m3-card-head">
-            <span className="material-symbols-rounded">key</span>
-            <h2>Solo lectura — entra como admin para editar</h2>
-          </div>
-          <form onSubmit={login} className="m3-input-row">
-            <div className="m3-field">
-              <span className="material-symbols-rounded">password</span>
-              <input
-                type="password"
-                value={pw}
-                onChange={(e) => setPw(e.target.value)}
-                placeholder="Contraseña de admin..."
-              />
-            </div>
-            <button type="submit" className="m3-btn m3-btn-filled">
-              <span className="material-symbols-rounded">login</span>
-              Entrar
+        <div className="m3-login-backdrop" onClick={closeLogin}>
+          <div
+            className={`m3-login-card ${loginError ? 'shake' : ''}`}
+            key={loginError ? 'err' : 'ok'}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Acceso admin"
+          >
+            <button onClick={closeLogin} className="m3-login-close" aria-label="Cerrar">
+              <span className="material-symbols-rounded">close</span>
             </button>
-          </form>
-          <p className="m3-muted">Los demás solo ven resultados, no pueden editar.</p>
-        </section>
+            <div className="m3-login-icon">
+              <span className="material-symbols-rounded">admin_panel_settings</span>
+            </div>
+            <h2>Acceso admin</h2>
+            <p className="m3-muted">Solo el admin puede crear jugadores y registrar resultados. Los demás ven todo en modo lectura.</p>
+            <form onSubmit={login}>
+              <div className={`m3-field m3-pw-field ${loginError ? 'm3-field-error' : ''}`}>
+                <span className="material-symbols-rounded">password</span>
+                <input
+                  autoFocus
+                  type={showPw ? 'text' : 'password'}
+                  value={pw}
+                  onChange={(e) => { setPw(e.target.value); setLoginError(false) }}
+                  placeholder="Contraseña de admin..."
+                  aria-label="Contraseña de admin"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw((v) => !v)}
+                  className="m3-pw-toggle"
+                  title={showPw ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  aria-label={showPw ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                >
+                  <span className="material-symbols-rounded">{showPw ? 'visibility_off' : 'visibility'}</span>
+                </button>
+              </div>
+              {loginError && <p className="m3-login-error">Contraseña incorrecta, intenta de nuevo.</p>}
+              <button type="submit" className="m3-btn m3-btn-filled m3-login-submit">
+                <span className="material-symbols-rounded">login</span>
+                Entrar como admin
+              </button>
+            </form>
+          </div>
+        </div>
       )}
 
       {status && (
