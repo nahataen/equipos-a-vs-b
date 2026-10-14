@@ -22,7 +22,7 @@ const shuffle = (arr) => {
 }
 
 const WIN_PTS = 20
-const LOSS_PTS = 15
+const LOSS_PTS = 20
 
 // Estilo Riot: 100 pts por división, LP = resto dentro del rango
 const RANKS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Esmeralda', 'Diamante', 'Maestro']
