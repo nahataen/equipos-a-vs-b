@@ -896,6 +896,23 @@ function App() {
                   <tr><td>Maestro</td><td>2800+</td><td>sin divisiones</td></tr>
                 </tbody>
               </table>
+              <h3>Equipos por partida</h3>
+              <p>Quién jugó de cada lado, con el promedio del equipo y lo que subió o bajó cada uno:</p>
+              <div className="m3-help-scroll">
+              <table className="m3-help-table">
+                <thead><tr><th>#</th><th>Ganadores (prom.)</th><th>Perdedores (prom.)</th><th>Cambio</th></tr></thead>
+                <tbody>
+                  <tr><td>P1</td><td>Nata, Roxas, DJ, Poppa, Hanubi (400)</td><td>Neid, Junko, Blubby, Hanz, Mika (400)</td><td>+16 / −16</td></tr>
+                  <tr><td>P2</td><td>DJ, Hanubi, Neid, Blubby, Poppa (403)</td><td>Nata, Junko, Hanz, Mika, Roxas (397)</td><td>+16 / −16</td></tr>
+                  <tr><td>P3</td><td>Nata, Hanubi, Neid, Blubby, Junko (400)</td><td>Mika, Roxas, Hanz, DJ, Poppa (400)</td><td>+16 / −16</td></tr>
+                  <tr><td>P4</td><td>Hanubi, Blubby, DJ, Mika, Fairy (406)</td><td>Nata, Roxas, Hanz, Junko, Neid (390)</td><td>+15 / −15</td></tr>
+                  <tr><td>P5</td><td>Nata, Hanz, Junko, Neid, DJ (388)</td><td>Hanubi, Blubby, Mika, Fairy, Roxas (409)</td><td>+17 / −17</td></tr>
+                  <tr><td>P6</td><td>Blubby, Mika, Junko, DJ, Hanz (390)</td><td>Nata, Roxas, Neid, Hanubi, Fairy (406)</td><td>+17 / −17</td></tr>
+                  <tr><td>P7</td><td>Blubby, Junko, Roxas, Fairy, Neid (390)</td><td>Nata, Mika, DJ, Hanz, Hanubi (407)</td><td>+17 / −17</td></tr>
+                  <tr><td>P8</td><td>Junko, Roxas, Hanz, Mika, Hanubi (378)</td><td>Nata, DJ, Neid, Fairy, Blubby (419)</td><td>+18 / −18</td></tr>
+                </tbody>
+              </table>
+              </div>
               <h3>Historial de partidas</h3>
               <p>Puntaje de cada jugador después de cada partida (<span style={{ color: '#14622f', fontWeight: 800 }}>verde = ganó</span>, <span style={{ color: 'var(--md-sys-color-error)', fontWeight: 800 }}>rojo = perdió</span>). Todos parten de 400:</p>
               <table className="m3-help-table m3-matrix">
