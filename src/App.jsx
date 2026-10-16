@@ -568,22 +568,25 @@ function App() {
     setTeamB((t) => applyTo(t))
   }
 
-  // contador de loses (solo admin, +1 / −1 sin bajar de 0)
+  // contador de loses (solo admin, +1 / −1 sin bajar de 0, arrastra puntos como en registerWin)
   const bumpLosses = async (p, delta) => {
     if (!requireAdmin()) return
     const next = Math.max(0, getLosses(p) + delta)
+    const nextPts =
+      delta > 0 ? Math.max(0, getPoints(p) - LOSS_PTS) : getPoints(p) + LOSS_PTS
     if (isSupabaseConfigured) {
-      const { error } = await supabase.from('players').update({ losses: next }).eq('id', p.id)
+      const { error } = await safeUpdate(p.id, { losses: next, points: nextPts }, { losses: next })
       if (error) {
         setStatus(
-          error.message.includes('losses')
+          isSchemaCacheError(error)
             ? 'Corre en Supabase → SQL: alter table players add column if not exists losses int default 0;'
             : error.message
         )
         return
       }
     }
-    const applyTo = (list) => list.map((x) => (x.id === p.id ? { ...x, losses: next } : x))
+    const applyTo = (list) =>
+      list.map((x) => (x.id === p.id ? { ...x, losses: next, points: nextPts } : x))
     setAllPlayers((prev) => applyTo(prev))
     setTeamA((t) => applyTo(t))
     setTeamB((t) => applyTo(t))
