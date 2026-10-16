@@ -895,6 +895,22 @@ function App() {
                   <tr><td>Maestro</td><td>2800+</td><td>sin divisiones</td></tr>
                 </tbody>
               </table>
+              <h3>Ejemplo real: tus 8 partidas</h3>
+              <p>Antes de cada partida se promedian los puntajes ocultos de cada equipo. Mira cómo el cambio depende de quién era favorito:</p>
+              <table className="m3-help-table">
+                <thead><tr><th>#</th><th>Ganadores (prom.)</th><th>Perdedores (prom.)</th><th>Cambio</th></tr></thead>
+                <tbody>
+                  <tr><td>P1</td><td>1000</td><td>1000</td><td>+16 / −16</td></tr>
+                  <tr><td>P2</td><td>1003</td><td>997</td><td>+16 / −16</td></tr>
+                  <tr><td>P3</td><td>1000</td><td>1000</td><td>+16 / −16</td></tr>
+                  <tr><td>P4</td><td>1006</td><td>990</td><td>+15 / −15</td></tr>
+                  <tr><td>P5</td><td>988</td><td>1009</td><td>+17 / −17</td></tr>
+                  <tr><td>P6</td><td>990</td><td>1006</td><td>+17 / −17</td></tr>
+                  <tr><td>P7</td><td>990</td><td>1007</td><td>+17 / −17</td></tr>
+                  <tr><td>P8</td><td>978</td><td>1019</td><td>+18 / −18</td></tr>
+                </tbody>
+              </table>
+              <p>En la <b>P4</b> los ganadores eran favoritos (1006 vs 990), por eso solo +15. En la <b>P8</b> ganaron los débiles (978 vs 1019), por eso +18: la sorpresa paga más.</p>
               <h3>Colocación</h3>
               <p>Con menos de <b>5 partidas</b> no tienes rango oficial: apareces abajo como <b>En colocación (X/5)</b>. A la 5ª entras al ladder.</p>
               <h3>Equipos</h3>
