@@ -896,6 +896,8 @@ function App() {
                   <tr><td>Maestro</td><td>2800+</td><td>sin divisiones</td></tr>
                 </tbody>
               </table>
+              <h3>Por qué a veces dan más y a veces menos</h3>
+              <p>Si gana el equipo favorito, era lo esperado: <b>dan pocos puntos</b>. Si gana el que iba perdiendo, dio la sorpresa: <b>dan más puntos</b>. Lo mismo al revés: perder contra un rival débil quita más.</p>
               <h3>Equipos por partida</h3>
               <p>Quién jugó de cada lado, con el promedio del equipo y lo que subió o bajó cada uno:</p>
               <div className="m3-help-scroll">
