@@ -339,6 +339,11 @@
 .m3-help-table th, .m3-help-table td { padding: 6px 8px; border-bottom: 1px solid var(--md-sys-color-outline-variant); text-align: left; }
 .m3-help-table thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--md-sys-color-on-surface-variant); }
 .m3-help-table tbody tr:nth-child(odd) { background: var(--md-sys-color-surface-container); }
+/* Matriz de partidas: verde ganó, rojo perdió */
+.m3-matrix th, .m3-matrix td { text-align: center; padding: 5px 4px; }
+.m3-matrix th:first-child, .m3-matrix td:first-child { text-align: left; }
+.m3-matrix td.w { color: #14622f; font-weight: 800; }
+.m3-matrix td.l { color: var(--md-sys-color-error); font-weight: 800; }
 .m3-list-name { flex: 1; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .m3-wins-badge {
   display: inline-flex; align-items: center; gap: 4px;

@@ -895,6 +895,25 @@ function App() {
                   <tr><td>Maestro</td><td>2800+</td><td>sin divisiones</td></tr>
                 </tbody>
               </table>
+              <h3>Historial de partidas</h3>
+              <p>Quién ganó (G) y quién perdió (P) en cada una:</p>
+              <table className="m3-help-table m3-matrix">
+                <thead><tr><th></th><th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th><th>P7</th><th>P8</th><th>Total</th></tr></thead>
+                <tbody>
+                  <tr><td>Nataen</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td>3-5</td></tr>
+                  <tr><td>Roxas</td><td className="w">G</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td>3-5</td></tr>
+                  <tr><td>DJuanchito</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="l">P</td><td>5-3</td></tr>
+                  <tr><td>Poppa</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>2-1</td></tr>
+                  <tr><td>Hanubi</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td>5-3</td></tr>
+                  <tr><td>Neid</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td>4-4</td></tr>
+                  <tr><td>Junko</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td>5-3</td></tr>
+                  <tr><td>Blubby</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td>5-3</td></tr>
+                  <tr><td>Hanz</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td>3-5</td></tr>
+                  <tr><td>Mika</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td>3-5</td></tr>
+                  <tr><td>Fairy</td><td>—</td><td>—</td><td>—</td><td className="w">G</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td>2-3</td></tr>
+                  <tr><td>Sanns</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0-0</td></tr>
+                </tbody>
+              </table>
               <h3>Colocación</h3>
               <p>Con menos de <b>5 partidas</b> no tienes rango: apareces abajo como <b>En colocación</b>. A la 5ª entras a la tabla.</p>
               <h3>Equipos</h3>
