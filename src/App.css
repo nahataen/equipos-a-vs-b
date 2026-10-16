@@ -344,6 +344,7 @@
 .m3-matrix th:first-child, .m3-matrix td:first-child { text-align: left; }
 .m3-matrix td.w { color: #14622f; font-weight: 800; }
 .m3-matrix td.l { color: var(--md-sys-color-error); font-weight: 800; }
+.m3-matrix td.start { color: #0288d1; font-weight: 800; }
 .m3-list-name { flex: 1; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .m3-wins-badge {
   display: inline-flex; align-items: center; gap: 4px;
