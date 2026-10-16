@@ -615,7 +615,7 @@ function App() {
     setAvatarFor(null)
   }
 
-  const ranking = [...allPlayers].sort((a, b) => (b.wins ?? 0) - (a.wins ?? 0) || getPoints(b) - getPoints(a))
+  const ranking = [...allPlayers].sort((a, b) => getPoints(b) - getPoints(a) || (b.wins ?? 0) - (a.wins ?? 0))
   const mode =
     activePlayers.length === 0
       ? '—'
