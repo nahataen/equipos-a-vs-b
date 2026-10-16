@@ -878,10 +878,10 @@ function App() {
           <div className="m3-lightbox-card m3-help-card" onClick={(e) => e.stopPropagation()}>
             <h2><span className="material-symbols-rounded">emoji_events</span> Cómo funciona el ranking</h2>
             <div className="m3-help-body">
-              <h3>Nivel oculto (MMR)</h3>
-              <p>Cada jugador tiene un puntaje invisible que mide su nivel. Todos empiezan en <b>1000</b>. Por partida ganas o pierdes entre <b>15 y 18 puntos</b> según el rival: ganarle al fuerte paga más, perder siendo favorito castiga más.</p>
+              <h3>Tu puntaje secreto</h3>
+              <p>Todos empiezan igual. Si le ganas a un equipo más fuerte, subes más. Si pierdes contra uno más débil, bajas más. Lo normal es subir o bajar entre 15 y 18 por partido.</p>
               <h3>Lo que ves: rango y LP</h3>
-              <p>Al puntaje se le restan 600 y se muestra como rango. Empiezas en <b>Bronce IV - 0 LP</b> (= 400 puntos). Cada división vale <b>100 LP</b> (0–99) y cada tier tiene 4 divisiones (IV → III → II → I).</p>
+              <p>Empiezas en <b>Bronce IV - 0 LP</b>. Cada división vale <b>100 LP</b> y cada nivel tiene 4 divisiones (de la IV a la I).</p>
               <table className="m3-help-table">
                 <thead><tr><th>Tier</th><th>Puntos</th><th>Divisiones</th></tr></thead>
                 <tbody>
@@ -895,28 +895,10 @@ function App() {
                   <tr><td>Maestro</td><td>2800+</td><td>sin divisiones</td></tr>
                 </tbody>
               </table>
-              <h3>Ejemplo real: tus 8 partidas</h3>
-              <p>Antes de cada partida se promedian los puntajes ocultos de cada equipo. Mira cómo el cambio depende de quién era favorito:</p>
-              <table className="m3-help-table">
-                <thead><tr><th>#</th><th>Ganadores (prom.)</th><th>Perdedores (prom.)</th><th>Cambio</th></tr></thead>
-                <tbody>
-                  <tr><td>P1</td><td>1000</td><td>1000</td><td>+16 / −16</td></tr>
-                  <tr><td>P2</td><td>1003</td><td>997</td><td>+16 / −16</td></tr>
-                  <tr><td>P3</td><td>1000</td><td>1000</td><td>+16 / −16</td></tr>
-                  <tr><td>P4</td><td>1006</td><td>990</td><td>+15 / −15</td></tr>
-                  <tr><td>P5</td><td>988</td><td>1009</td><td>+17 / −17</td></tr>
-                  <tr><td>P6</td><td>990</td><td>1006</td><td>+17 / −17</td></tr>
-                  <tr><td>P7</td><td>990</td><td>1007</td><td>+17 / −17</td></tr>
-                  <tr><td>P8</td><td>978</td><td>1019</td><td>+18 / −18</td></tr>
-                </tbody>
-              </table>
-              <p>En la <b>P4</b> los ganadores eran favoritos (1006 vs 990), por eso solo +15. En la <b>P8</b> ganaron los débiles (978 vs 1019), por eso +18: la sorpresa paga más.</p>
               <h3>Colocación</h3>
-              <p>Con menos de <b>5 partidas</b> no tienes rango oficial: apareces abajo como <b>En colocación (X/5)</b>. A la 5ª entras al ladder.</p>
+              <p>Con menos de <b>5 partidas</b> no tienes rango: apareces abajo como <b>En colocación</b>. A la 5ª entras a la tabla.</p>
               <h3>Equipos</h3>
-              <p><b>Random</b> para variar compañeros (si sale disparejo, el sistema lo compensa). <b>Balancear por nivel</b> reparte por puntaje para un partido parejo.</p>
-              <h3>Orden del ladder</h3>
-              <p>1) más puntos, 2) mejor winrate, 3) más partidas jugadas.</p>
+              <p><b>Random</b> para variar. <b>Balancear</b> para un partido parejo.</p>
             </div>
             <button onClick={() => setShowHelp(false)} className="m3-btn m3-btn-tonal">
               <span className="material-symbols-rounded">close</span>
