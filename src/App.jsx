@@ -897,21 +897,21 @@ function App() {
                 </tbody>
               </table>
               <h3>Historial de partidas</h3>
-              <p>Quién ganó (G) y quién perdió (P) en cada una:</p>
+              <p>Puntaje de cada jugador después de cada partida (<span style={{ color: '#14622f', fontWeight: 800 }}>verde = ganó</span>, <span style={{ color: 'var(--md-sys-color-error)', fontWeight: 800 }}>rojo = perdió</span>). Todos parten de 400:</p>
               <table className="m3-help-table m3-matrix">
                 <thead><tr><th></th><th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th><th>P7</th><th>P8</th><th>Total</th></tr></thead>
                 <tbody>
-                  <tr><td>Nataen</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td>3-5</td></tr>
-                  <tr><td>Roxas</td><td className="w">G</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td>3-5</td></tr>
-                  <tr><td>DJuanchito</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="l">P</td><td>5-3</td></tr>
-                  <tr><td>Poppa</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>2-1</td></tr>
-                  <tr><td>Hanubi</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td>5-3</td></tr>
-                  <tr><td>Neid</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td>4-4</td></tr>
-                  <tr><td>Junko</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td>5-3</td></tr>
-                  <tr><td>Blubby</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td>5-3</td></tr>
-                  <tr><td>Hanz</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td>3-5</td></tr>
-                  <tr><td>Mika</td><td className="l">P</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td className="w">G</td><td>3-5</td></tr>
-                  <tr><td>Fairy</td><td>—</td><td>—</td><td>—</td><td className="w">G</td><td className="l">P</td><td className="l">P</td><td className="w">G</td><td className="l">P</td><td>2-3</td></tr>
+                  <tr><td>Nataen</td><td className="w">416</td><td className="l">400</td><td className="w">416</td><td className="l">401</td><td className="w">418</td><td className="l">401</td><td className="l">384</td><td className="l">366</td><td>3-5</td></tr>
+                  <tr><td>Roxas</td><td className="w">416</td><td className="l">400</td><td className="l">384</td><td className="l">369</td><td className="l">352</td><td className="l">335</td><td className="w">352</td><td className="w">370</td><td>3-5</td></tr>
+                  <tr><td>DJuanchito</td><td className="w">416</td><td className="w">432</td><td className="l">416</td><td className="w">431</td><td className="w">448</td><td className="w">465</td><td className="l">448</td><td className="l">430</td><td>5-3</td></tr>
+                  <tr><td>Poppa</td><td className="w">416</td><td className="w">432</td><td className="l">416</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>2-1</td></tr>
+                  <tr><td>Hanubi</td><td className="w">416</td><td className="w">432</td><td className="w">448</td><td className="w">463</td><td className="l">446</td><td className="l">429</td><td className="l">412</td><td className="w">430</td><td>5-3</td></tr>
+                  <tr><td>Neid</td><td className="l">384</td><td className="w">400</td><td className="w">416</td><td className="l">401</td><td className="w">418</td><td className="l">401</td><td className="w">418</td><td className="l">400</td><td>4-4</td></tr>
+                  <tr><td>Junko</td><td className="l">384</td><td className="l">368</td><td className="w">384</td><td className="l">369</td><td className="w">386</td><td className="w">403</td><td className="w">420</td><td className="w">438</td><td>5-3</td></tr>
+                  <tr><td>Blubby</td><td className="l">384</td><td className="w">400</td><td className="w">416</td><td className="w">431</td><td className="l">414</td><td className="w">431</td><td className="w">448</td><td className="l">430</td><td>5-3</td></tr>
+                  <tr><td>Hanz</td><td className="l">384</td><td className="l">368</td><td className="l">352</td><td className="l">337</td><td className="w">354</td><td className="w">371</td><td className="l">354</td><td className="w">372</td><td>3-5</td></tr>
+                  <tr><td>Mika</td><td className="l">384</td><td className="l">368</td><td className="l">352</td><td className="w">367</td><td className="l">350</td><td className="w">367</td><td className="l">350</td><td className="w">368</td><td>3-5</td></tr>
+                  <tr><td>Fairy</td><td>—</td><td>—</td><td>—</td><td className="w">415</td><td className="l">398</td><td className="l">381</td><td className="w">398</td><td className="l">380</td><td>2-3</td></tr>
                   <tr><td>Sanns</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0-0</td></tr>
                 </tbody>
               </table>
