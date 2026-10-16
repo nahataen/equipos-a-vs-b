@@ -33,19 +33,42 @@ const shuffle = (arr) => {
   return a
 }
 
+// Elo (MMR oculto): K=32, base 1000, piso 0. El cambio se calcula con el
+// promedio de cada equipo y es el mismo para todo el equipo ganador/perdedor.
+const ELO_K = 32
+const ELO_BASE = 1000
+const MIN_GAMES = 5 // menos de esto = en colocación (fuera del ladder)
+// legado: solo como respaldo para historiales viejos sin delta Elo
 const WIN_PTS = 20
 const LOSS_PTS = 20
+const rhalf = (x) => (x >= 0 ? Math.floor(x + 0.5) : Math.ceil(x - 0.5))
+const eloExpected = (a, b) => 1 / (1 + Math.pow(10, (b - a) / 400))
+// MMR del jugador; si falta la columna se aproxima desde puntos legacy (base 0 -> escala 600)
+const getMmr = (p) => p.mmr ?? (p.points != null ? p.points + 600 : ELO_BASE)
+// puntos_rango = lo único que se muestra (MMR inicial 1000 = Bronce IV 0 LP)
+const getPuntos = (p) => getMmr(p) - 600
 
-// Estilo Riot: 100 pts por división, LP = resto dentro del rango
-const RANKS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Esmeralda', 'Diamante', 'Maestro']
-const getPoints = (p) => p.points ?? (p.wins ?? 0) * WIN_PTS
+// Divisiones de 100 LP (0-99), 4 por tier (400 pts). Maestro sin divisiones.
+const ELO_TIERS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Esmeralda', 'Diamante']
+const getRank = (puntos) => {
+  if (puntos >= 2800) return { name: 'Maestro', div: null, lp: null }
+  return {
+    name: ELO_TIERS[Math.floor(puntos / 400)],
+    div: ['IV', 'III', 'II', 'I'][Math.floor((puntos % 400) / 100)],
+    lp: puntos % 100,
+  }
+}
+const rankLabel = (r) => (r.lp === null || r.lp === undefined ? r.name : `${r.name} ${r.div} - ${r.lp} LP`)
+const rankShort = (r) => (r.div ? `${r.name} ${r.div}` : r.name)
+const getGames = (p) => (p.wins ?? 0) + (p.losses ?? 0)
 const getLosses = (p) => p.losses ?? 0
 const getStreak = (p) => p.streak ?? 0
 const getPentas = (p) => p.pentakills ?? 0
 const FIRE_STREAK = 2 // racha mínima para mostrar fuego
-const getRank = (points) => {
-  const i = Math.min(Math.floor(Math.max(0, points) / 100), RANKS.length - 1)
-  return { name: RANKS[i], lp: Math.max(0, points) % 100 }
+const isPlaced = (p) => getGames(p) >= MIN_GAMES
+const getWrOrNeg = (p) => {
+  const t = getGames(p)
+  return t ? (p.wins ?? 0) / t : -1
 }
 
 const SQL_PLAYERS = `create table if not exists players (
@@ -56,19 +79,21 @@ const SQL_PLAYERS = `create table if not exists players (
   points int default 0,
   streak int default 0,
   pentakills int default 0,
+  mmr int default 1000,
   avatar text,
   created_at timestamptz default now()
 );
 alter table players enable row level security;
 drop policy if exists "demo" on players;
 create policy "demo" on players for all using (true) with check (true);
--- si tu tabla ya existe, corre esto para migrar a ranked estilo Riot:
+-- si tu tabla ya existe, corre esto para migrar a Elo (MMR oculto base 1000):
 -- alter table players add column if not exists losses int default 0;
 -- alter table players add column if not exists points int default 0;
 -- alter table players add column if not exists streak int default 0;
 -- alter table players add column if not exists pentakills int default 0;
 -- alter table players add column if not exists avatar text;
--- update players set points = wins * 20 where points = 0 and wins > 0;
+-- alter table players add column if not exists mmr int default 1000;
+-- update players set points = mmr - 600 where mmr is not null;
 -- evita duplicados del mismo nombre (recomendado):
 -- create unique index if not exists players_name_lower_uidx on players (lower(name));
 -- realtime para ver cambios al instante en todos los dispositivos (opcional):
@@ -320,7 +345,7 @@ function App() {
       return
     }
     if (isSupabaseConfigured) {
-      const rankedPayload = { name: clean, wins: 0, losses: 0, points: 0, streak: 0, pentakills: 0 }
+      const rankedPayload = { name: clean, wins: 0, losses: 0, points: 400, streak: 0, pentakills: 0, mmr: 1000 }
       let { data, error } = await supabase.from('players').insert(rankedPayload).select()
       if (error && isSchemaCacheError(error)) {
         // tabla sin migrar a ranked: reintenta con columnas básicas
@@ -346,7 +371,7 @@ function App() {
         setActiveIds((prev) => [...prev, data[0].id])
       }
     } else {
-      const np = { id: uid(), name: clean, wins: 0, losses: 0, points: 0, streak: 0, pentakills: 0 }
+      const np = { id: uid(), name: clean, wins: 0, losses: 0, points: 400, streak: 0, pentakills: 0, mmr: 1000 }
       setAllPlayers((prev) => [...prev, np])
       setActiveIds((prev) => [...prev, np.id])
     }
@@ -433,12 +458,21 @@ function App() {
     }, 110)
   }
 
-  // Estilo Riot: ganadores +WIN_PTS, perdedores −LOSS_PTS (piso 0)
+  // Elo: cambio según promedio de cada equipo, igual para todo el equipo
   const registerWin = async (winner) => {
     if (!requireAdmin()) return
     const winners = winner === 'A' ? teamA : teamB
     const losers = winner === 'A' ? teamB : teamA
     if (winners.length === 0) return
+    const avgW = winners.reduce((a, p) => a + getMmr(p), 0) / winners.length
+    const avgL = losers.length
+      ? losers.reduce((a, p) => a + getMmr(p), 0) / losers.length
+      : avgW
+    const expW = eloExpected(avgW, avgL)
+    const deltaW = rhalf(ELO_K * (1 - expW))
+    const deltaL = rhalf(ELO_K * (0 - (1 - expW)))
+    const mmrW = (p) => Math.max(0, getMmr(p) + deltaW)
+    const mmrL = (p) => Math.max(0, getMmr(p) + deltaL)
     setLastWinner(winner)
     const entry = {
       key: uid() + Date.now().toString(36),
@@ -448,29 +482,33 @@ function App() {
       names: winners.map((p) => p.name),
       loserNames: losers.map((p) => p.name),
       prevStreaks: Object.fromEntries(allPlayers.map((p) => [p.id, getStreak(p)])),
+      deltaW,
+      deltaL,
       at: new Date().toISOString(),
     }
     const applyRanked = (list) =>
       list.map((p) => {
         if (entry.ids.includes(p.id))
-          return { ...p, wins: (p.wins ?? 0) + 1, points: getPoints(p) + WIN_PTS, streak: getStreak(p) + 1 }
+          return { ...p, wins: (p.wins ?? 0) + 1, mmr: mmrW(p), points: mmrW(p) - 600, streak: getStreak(p) + 1 }
         if (entry.loserIds.includes(p.id))
-          return { ...p, losses: getLosses(p) + 1, points: Math.max(0, getPoints(p) - LOSS_PTS), streak: 0 }
+          return { ...p, losses: getLosses(p) + 1, mmr: mmrL(p), points: mmrL(p) - 600, streak: 0 }
         return p
       })
     if (isSupabaseConfigured) {
       for (const p of winners) {
+        const next = mmrW(p)
         const { error } = await safeUpdate(
           p.id,
-          { wins: (p.wins ?? 0) + 1, points: getPoints(p) + WIN_PTS, streak: getStreak(p) + 1 },
+          { wins: (p.wins ?? 0) + 1, mmr: next, points: next - 600, streak: getStreak(p) + 1 },
           { wins: (p.wins ?? 0) + 1 }
         )
         if (error && !isSchemaCacheError(error)) setStatus(error.message)
       }
       for (const p of losers) {
+        const next = mmrL(p)
         const { error } = await safeUpdate(
           p.id,
-          { losses: getLosses(p) + 1, points: Math.max(0, getPoints(p) - LOSS_PTS), streak: 0 },
+          { losses: getLosses(p) + 1, mmr: next, points: next - 600, streak: 0 },
           {} // sin columnas ranked no hay nada que restar al perdedor
         )
         if (error && !isSchemaCacheError(error)) setStatus(error.message)
@@ -495,26 +533,29 @@ function App() {
     setWinHistory((prev) => [entry, ...prev].slice(0, 10))
   }
 
-  // deshace un registro erróneo: ganadores −WIN_PTS, perdedores +LOSS_PTS, rachas restauradas
+  // deshace un registro erróneo: revierte el delta Elo exacto aplicado al registrar
   const undoWin = async (entry) => {
     if (!requireAdmin()) return
     const idSet = new Set(entry.ids)
     const loserSet = new Set(entry.loserIds ?? [])
     const prev = entry.prevStreaks ?? {}
     const restoreStreak = (p) => (prev[p.id] ?? Math.max(0, getStreak(p) - (idSet.has(p.id) ? 1 : 0)))
+    const hasElo = entry.deltaW !== undefined && entry.deltaL !== undefined
     if (isSupabaseConfigured) {
       for (const p of allPlayers.filter((p) => idSet.has(p.id))) {
+        const nextMmr = hasElo ? Math.max(0, getMmr(p) - entry.deltaW) : Math.max(0, getPuntos(p) - 20) + 600
         const { error } = await safeUpdate(
           p.id,
-          { wins: Math.max(0, (p.wins ?? 0) - 1), points: Math.max(0, getPoints(p) - WIN_PTS), streak: restoreStreak(p) },
+          { wins: Math.max(0, (p.wins ?? 0) - 1), mmr: nextMmr, points: nextMmr - 600, streak: restoreStreak(p) },
           { wins: Math.max(0, (p.wins ?? 0) - 1) }
         )
         if (error && !isSchemaCacheError(error)) setStatus(error.message)
       }
       for (const p of allPlayers.filter((p) => loserSet.has(p.id))) {
+        const nextMmr = hasElo ? getMmr(p) - entry.deltaL : getPuntos(p) + 20 + 600
         const { error } = await safeUpdate(
           p.id,
-          { losses: Math.max(0, getLosses(p) - 1), points: getPoints(p) + LOSS_PTS, streak: restoreStreak(p) },
+          { losses: Math.max(0, getLosses(p) - 1), mmr: nextMmr, points: nextMmr - 600, streak: restoreStreak(p) },
           {}
         )
         if (error && !isSchemaCacheError(error)) setStatus(error.message)
@@ -531,10 +572,14 @@ function App() {
       }
     } else {
       const next = allPlayers.map((p) => {
-        if (idSet.has(p.id))
-          return { ...p, wins: Math.max(0, (p.wins ?? 0) - 1), points: Math.max(0, getPoints(p) - WIN_PTS), streak: restoreStreak(p) }
-        if (loserSet.has(p.id))
-          return { ...p, losses: Math.max(0, getLosses(p) - 1), points: getPoints(p) + LOSS_PTS, streak: restoreStreak(p) }
+        if (idSet.has(p.id)) {
+          const m = hasElo ? Math.max(0, getMmr(p) - entry.deltaW) : Math.max(0, getPuntos(p) - 20) + 600
+          return { ...p, wins: Math.max(0, (p.wins ?? 0) - 1), mmr: m, points: m - 600, streak: restoreStreak(p) }
+        }
+        if (loserSet.has(p.id)) {
+          const m = hasElo ? getMmr(p) - entry.deltaL : getPuntos(p) + 20 + 600
+          return { ...p, losses: Math.max(0, getLosses(p) - 1), mmr: m, points: m - 600, streak: restoreStreak(p) }
+        }
         return p
       })
       const map = new Map(next.map((p) => [p.id, p]))
@@ -615,7 +660,112 @@ function App() {
     setAvatarFor(null)
   }
 
-  const ranking = [...allPlayers].sort((a, b) => getPoints(b) - getPoints(a) || (b.wins ?? 0) - (a.wins ?? 0))
+  // fila del ranking (ladder y colocación comparten diseño)
+  const rankRow = (p, posLabel, i, unplaced) => {
+    const pts = getPuntos(p)
+    const r = getRank(pts)
+    const w = p.wins ?? 0
+    const l = getLosses(p)
+    const st = getStreak(p)
+    const pe = getPentas(p)
+    const total = w + l
+    const wr = total ? Math.round((w / total) * 100) : 0
+    const onFire = st >= FIRE_STREAK
+    const posClass = !unplaced && i < 3 ? `pos-${i + 1}` : ''
+    return (
+      <div
+        key={p.id}
+        className={`m3-list-row rank-card rank-in ${!unplaced && i === 0 ? 'top' : ''} ${onFire ? 'on-fire' : ''}`}
+        style={{ animationDelay: `${Math.min(i, 10) * 0.05}s` }}
+      >
+        <span className={`m3-pos ${posClass}`} title={unplaced ? 'En colocación' : `Puesto ${posLabel}`}>{posLabel}</span>
+        <button
+          onClick={() => onAvatarClick(p)}
+          className="m3-avatar"
+          title={isAdmin ? `Cambiar foto de ${p.name}` : p.name}
+          aria-label={`Foto de ${p.name}`}
+        >
+          {p.avatar ? (
+            <img src={p.avatar} alt={p.name} />
+          ) : (
+            <span className="m3-avatar-fallback">
+              {p.name.charAt(0).toUpperCase()}
+            </span>
+          )}
+          {isAdmin && (
+            <span className="m3-avatar-edit">
+              <span className="material-symbols-rounded">photo_camera</span>
+            </span>
+          )}
+        </button>
+        <span className="m3-list-name">
+          {isAdmin ? (
+            <button onClick={() => onAvatarClick(p)} className="m3-name-btn" title={`Cambiar foto de ${p.name}`}>
+              {p.name}
+            </button>
+          ) : p.avatar ? (
+            <button onClick={() => onAvatarClick(p)} className="m3-name-btn" title="Ver foto">
+              {p.name}
+            </button>
+          ) : (
+            p.name
+          )}
+          {onFire && (
+            <span className="m3-fire" title={`Racha de ${st} victorias`}>
+              <span className="material-symbols-rounded">local_fire_department</span>
+              x{st}
+            </span>
+          )}
+          {pe > 0 && (
+            <span className="m3-penta" title={`${pe} pentakills`}>
+              <span className="material-symbols-rounded">swords</span>
+              Penta x{pe}
+            </span>
+          )}
+          {!activeIds.includes(p.id) && <span className="m3-muted"> • fuera</span>}
+          {unplaced ? (
+            <span className="m3-rank-line">En colocación • {total}/{MIN_GAMES}</span>
+          ) : (
+            <span className="m3-rank-line">{rankLabel(r)}</span>
+          )}
+          <span className="m3-stats">
+            <span className="stat stat-win" title={`${w} victorias`}>{w}W</span>
+            <span className="stat stat-loss" title={`${l} derrotas`}>{l}L</span>
+            <span className="stat stat-wr" title={total ? `Winrate ${wr}% en ${total} partidas` : 'Sin partidas registradas'}>{total ? `WR ${wr}%` : 'WR —'}</span>
+          </span>
+        </span>
+        <span className="m3-wins-badge" title={unplaced ? 'Sin rango oficial' : rankLabel(r)}>
+          <span className="material-symbols-rounded">military_tech</span>
+          {unplaced ? `${total}/${MIN_GAMES}` : rankShort(r)}
+        </span>
+        {isAdmin && (
+          <>
+            <span className="m3-penta-stepper" title="Contador de pentakills">
+              <button onClick={() => bumpPenta(p, -1)} aria-label={`quitar pentakill a ${p.name}`}>−</button>
+              <button onClick={() => bumpPenta(p, 1)} aria-label={`sumar pentakill a ${p.name}`}>+</button>
+            </span>
+            <button
+              onClick={() => deleteFromRanking(p.id, p.name)}
+              className="m3-btn m3-btn-outlined"
+              style={{ height: 36, padding: '0 12px' }}
+              title="Borrar definitivo del ranking"
+            >
+              <span className="material-symbols-rounded">delete</span>
+            </button>
+          </>
+        )}
+      </div>
+    )
+  }
+
+  // ladder: solo colocados (5+ partidas), por puntos → winrate → partidas.
+  // Los de colocación van abajo en sección aparte (como en LoL).
+  const ranking = allPlayers
+    .filter(isPlaced)
+    .sort((a, b) => getPuntos(b) - getPuntos(a) || getWrOrNeg(b) - getWrOrNeg(a) || getGames(b) - getGames(a))
+  const placement = allPlayers
+    .filter((p) => !isPlaced(p))
+    .sort((a, b) => getGames(b) - getGames(a) || getPuntos(b) - getPuntos(a))
   const mode =
     activePlayers.length === 0
       ? '—'
@@ -748,7 +898,7 @@ function App() {
               {p.name}
               <span className="m3-wins-badge" style={{ padding: '2px 8px' }}>
                 <span className="material-symbols-rounded trophy">military_tech</span>
-                {getPoints(p)}
+                {rankShort(getRank(getPuntos(p)))}
               </span>
               {isAdmin && (
                 <button onClick={() => removeFromMatch(p.id)} title="quitar del partido (conserva ranking)" aria-label={`quitar ${p.name} del partido`}>
@@ -766,7 +916,7 @@ function App() {
             <div className="m3-chips">
               {inactivePlayers.map((p) => (
                 <span key={p.id} className="m3-chip" style={{ opacity: .75 }}>
-                  {p.name} ({getPoints(p)} pts)
+                  {p.name} ({rankShort(getRank(getPuntos(p)))})
                   {isAdmin && (
                     <button onClick={() => joinMatch(p.id)} title="meter al partido" aria-label={`meter ${p.name}`}>
                       <span className="material-symbols-rounded">add</span>
@@ -850,8 +1000,8 @@ function App() {
             <span className="material-symbols-rounded">celebration</span>
             <div style={{ flex: 1 }}>
               <b>¡Ganó el Equipo {lastWinner}!</b><br />
-              +{WIN_PTS} pts para: {(lastWinner === 'A' ? teamA : teamB).map((p) => p.name).join(', ')}<br />
-              −{LOSS_PTS} pts para: {(lastWinner === 'A' ? teamB : teamA).map((p) => p.name).join(', ') || '—'}
+              +{winHistory[0].deltaW ?? WIN_PTS} LP para: {(lastWinner === 'A' ? teamA : teamB).map((p) => p.name).join(', ')}<br />
+              {winHistory[0].deltaL ?? -LOSS_PTS} LP para: {(lastWinner === 'A' ? teamB : teamA).map((p) => p.name).join(', ') || '—'}
             </div>
             {isAdmin && (
               <button onClick={() => undoWin(winHistory[0])} className="m3-btn m3-btn-outlined" style={{ height: 40 }} title="Deshacer este registro">
@@ -869,7 +1019,7 @@ function App() {
                 <div key={h.key} className="m3-list-row">
                   <span className="material-symbols-rounded">history</span>
                   <span className="m3-list-name">
-                    Equipo {h.winner} +{WIN_PTS}/−{LOSS_PTS} ({h.names.join(', ')})
+                    Equipo {h.winner} +{h.deltaW ?? WIN_PTS}/−{-(h.deltaL ?? -LOSS_PTS)} ({h.names.join(', ')})
                   </span>
                   <button
                     onClick={() => undoWin(h)}
@@ -904,104 +1054,25 @@ function App() {
             </button>
           )}
         </div>
-        <p className="m3-support">Se conserva aunque salgan del partido. Ganar +{WIN_PTS} pts, perder −{LOSS_PTS} pts. Solo admin puede borrar definitivo.</p>
-        {ranking.length === 0 ? (
+        <p className="m3-support">Se conserva aunque salgan del partido. Sistema Elo: el cambio depende del nivel de cada equipo. Solo admin puede borrar definitivo.</p>
+        {ranking.length === 0 && placement.length === 0 ? (
           <p className="m3-muted">Sin datos aún.</p>
         ) : (
-          <div className="m3-list rank-list">
-            {ranking.map((p, i) => {
-              const pts = getPoints(p)
-              const r = getRank(pts)
-              const w = p.wins ?? 0
-              const l = getLosses(p)
-              const st = getStreak(p)
-              const pe = getPentas(p)
-              const total = w + l
-              const wr = total ? Math.round((w / total) * 100) : 0
-              const onFire = st >= FIRE_STREAK
-              const posClass = i === 0 ? 'pos-1' : i === 1 ? 'pos-2' : i === 2 ? 'pos-3' : ''
-              return (
-              <div
-                key={p.id}
-                className={`m3-list-row rank-card rank-in ${i === 0 ? 'top' : ''} ${onFire ? 'on-fire' : ''}`}
-                style={{ animationDelay: `${Math.min(i, 10) * 0.05}s` }}
-              >
-                <span className={`m3-pos ${posClass}`} title={`Puesto ${i + 1}`}>{i + 1}</span>
-                <button
-                  onClick={() => onAvatarClick(p)}
-                  className="m3-avatar"
-                  title={isAdmin ? `Cambiar foto de ${p.name}` : p.name}
-                  aria-label={`Foto de ${p.name}`}
-                >
-                  {p.avatar ? (
-                    <img src={p.avatar} alt={p.name} />
-                  ) : (
-                    <span className="m3-avatar-fallback">
-                      {p.name.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                  {isAdmin && (
-                    <span className="m3-avatar-edit">
-                      <span className="material-symbols-rounded">photo_camera</span>
-                    </span>
-                  )}
-                </button>
-                <span className="m3-list-name">
-                  {isAdmin ? (
-                    <button onClick={() => onAvatarClick(p)} className="m3-name-btn" title={`Cambiar foto de ${p.name}`}>
-                      {p.name}
-                    </button>
-                  ) : p.avatar ? (
-                    <button onClick={() => onAvatarClick(p)} className="m3-name-btn" title="Ver foto">
-                      {p.name}
-                    </button>
-                  ) : (
-                    p.name
-                  )}
-                  {onFire && (
-                    <span className="m3-fire" title={`Racha de ${st} victorias`}>
-                      <span className="material-symbols-rounded">local_fire_department</span>
-                      x{st}
-                    </span>
-                  )}
-                  {pe > 0 && (
-                    <span className="m3-penta" title={`${pe} pentakills`}>
-                      <span className="material-symbols-rounded">swords</span>
-                      Penta x{pe}
-                    </span>
-                  )}
-                  {!activeIds.includes(p.id) && <span className="m3-muted"> • fuera</span>}
-                  <span className="m3-rank-line">{r.name} • {r.lp} LP</span>
-                  <span className="m3-stats">
-                    <span className="stat stat-win" title={`${w} victorias`}>{w}W</span>
-                    <span className="stat stat-loss" title={`${l} derrotas`}>{l}L</span>
-                    <span className="stat stat-wr" title={total ? `Winrate ${wr}% en ${total} partidas` : 'Sin partidas registradas'}>{total ? `WR ${wr}%` : 'WR —'}</span>
-                  </span>
-                </span>
-                <span className="m3-wins-badge">
-                  <span className="material-symbols-rounded">military_tech</span>
-                  {pts} pts
-                </span>
-                {isAdmin && (
-                  <>
-                    <span className="m3-penta-stepper" title="Contador de pentakills">
-                      <button onClick={() => bumpPenta(p, -1)} aria-label={`quitar pentakill a ${p.name}`}>−</button>
-                      <button onClick={() => bumpPenta(p, 1)} aria-label={`sumar pentakill a ${p.name}`}>+</button>
-                    </span>
-                    <button
-                      onClick={() => deleteFromRanking(p.id, p.name)}
-                      className="m3-btn m3-btn-outlined"
-                      style={{ height: 36, padding: '0 12px' }}
-                      title="Borrar definitivo del ranking"
-                    >
-                      <span className="material-symbols-rounded">delete</span>
-                    </button>
-                  </>
-                )}
-              </div>
-              )
-            })}
-          </div>
+          <>
+            <div className="m3-list rank-list">
+              {ranking.map((p, i) => rankRow(p, String(i + 1), i, false))}
+            </div>
+            {placement.length > 0 && (
+              <>
+                <p className="m3-support" style={{ marginTop: 14 }}>
+                  En colocación (juega {MIN_GAMES} partidas para entrar al ladder):
+                </p>
+                <div className="m3-list rank-list">
+                  {placement.map((p, i) => rankRow(p, '·', i, true))}
+                </div>
+              </>
+            )}
+          </>
         )}
       </section>
         </div>
