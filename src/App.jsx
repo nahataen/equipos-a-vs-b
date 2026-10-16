@@ -430,6 +430,29 @@ function App() {
     setLastWinner(null)
   }
 
+  // BALANCEADO POR NIVEL (serpiente por MMR: 1A 2B 3B 4A 5A... parejas alternadas)
+  const assignBalanced = () => {
+    if (!requireAdmin()) return
+    if (activePlayers.length < 2) {
+      setStatus('Agrega al menos 2 jugadores al partido (1v1 mínimo)')
+      return
+    }
+    setStatus('')
+    setLastWinner(null)
+    const sorted = [...activePlayers].sort((a, b) => getMmr(b) - getMmr(a))
+    const A = [], B = []
+    sorted.forEach((p, idx) => {
+      const pairEven = Math.floor(idx / 2) % 2 === 0
+      const first = idx % 2 === 0
+      const toA = pairEven ? first : !first
+      ;(toA ? A : B).push(p)
+    })
+    setTeamA(A)
+    setTeamB(B)
+    const avg = (t) => Math.round(t.reduce((a, p) => a + getMmr(p), 0) / t.length)
+    setStatus(`Nivel parejo: A ~${avg(A)} vs B ~${avg(B)} (MMR interno)`)
+  }
+
   // RULETA RANDOM (solo con los del partido actual)
   const assignRandom = () => {
     if (!requireAdmin()) return
@@ -939,6 +962,10 @@ function App() {
           <button onClick={assignRandom} disabled={spinning || activePlayers.length < 2 || !isAdmin} className="m3-btn m3-btn-filled" title={!isAdmin ? 'Solo admin' : ''}>
             <span className="material-symbols-rounded">{spinning ? 'progress_activity' : 'shuffle'}</span>
             {spinning ? 'Girando...' : 'Asignar equipos random'}
+          </button>
+          <button onClick={assignBalanced} disabled={spinning || activePlayers.length < 2 || !isAdmin} className="m3-btn m3-btn-tonal" title={isAdmin ? 'Reparte por nivel (MMR) para un partido parejo' : 'Solo admin'}>
+            <span className="material-symbols-rounded">balance</span>
+            Balancear por nivel
           </button>
           <button onClick={clearTeams} className="m3-btn m3-btn-outlined" disabled={!isAdmin}>
             <span className="material-symbols-rounded">restart_alt</span>
