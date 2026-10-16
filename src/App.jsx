@@ -981,7 +981,7 @@ function App() {
                     p.name
                   )}
                   <br />
-                  <span className="m3-muted">{r.name} {r.lp} LP • {w}W {l}L • {wr}%</span>
+                  <span className="m3-muted">{r.name} {r.lp} LP • {w}W {l}L • WR {wr}%</span>
                   {onFire && (
                     <span className="m3-fire" title={`Racha de ${st} victorias`}>
                       <span className="material-symbols-rounded">local_fire_department</span>
