@@ -451,8 +451,8 @@ function App() {
     })
     setTeamA(A)
     setTeamB(B)
-    const avg = (t) => Math.round(t.reduce((a, p) => a + getMmr(p), 0) / t.length)
-    setStatus(`Nivel parejo: A ~${avg(A)} vs B ~${avg(B)} (MMR interno)`)
+    const avg = (t) => Math.round(t.reduce((a, p) => a + getPuntos(p), 0) / t.length)
+    setStatus(`Nivel parejo: A ~${avg(A)} pts vs B ~${avg(B)} pts`) 
   }
 
   // RULETA RANDOM (solo con los del partido actual)
@@ -1040,7 +1040,7 @@ function App() {
         </div>
         <div className={`m3-teams ${spinning ? 'spinning' : ''}`}>
           <div className="m3-team a">
-            <h3><span className="material-symbols-rounded">shield</span>Equipo A ({teamA.length})</h3>
+            <h3><span className="material-symbols-rounded">shield</span>Equipo A ({teamA.length}){teamA.length > 0 && ` · ${Math.round(teamA.reduce((s, p) => s + getPuntos(p), 0) / teamA.length)} pts`}</h3>
             {teamA.map((p) => (
               <div key={p.id} className="m3-player">
                 <span className="material-symbols-rounded">person</span>{p.name}
@@ -1050,7 +1050,7 @@ function App() {
           </div>
           <div className="m3-vs">VS</div>
           <div className="m3-team b">
-            <h3><span className="material-symbols-rounded">shield</span>Equipo B ({teamB.length})</h3>
+            <h3><span className="material-symbols-rounded">shield</span>Equipo B ({teamB.length}){teamB.length > 0 && ` · ${Math.round(teamB.reduce((s, p) => s + getPuntos(p), 0) / teamB.length)} pts`}</h3>
             {teamB.map((p) => (
               <div key={p.id} className="m3-player">
                 <span className="material-symbols-rounded">person</span>{p.name}
