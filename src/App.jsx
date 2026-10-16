@@ -568,6 +568,27 @@ function App() {
     setTeamB((t) => applyTo(t))
   }
 
+  // contador de loses (solo admin, +1 / −1 sin bajar de 0)
+  const bumpLosses = async (p, delta) => {
+    if (!requireAdmin()) return
+    const next = Math.max(0, getLosses(p) + delta)
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.from('players').update({ losses: next }).eq('id', p.id)
+      if (error) {
+        setStatus(
+          error.message.includes('losses')
+            ? 'Corre en Supabase → SQL: alter table players add column if not exists losses int default 0;'
+            : error.message
+        )
+        return
+      }
+    }
+    const applyTo = (list) => list.map((x) => (x.id === p.id ? { ...x, losses: next } : x))
+    setAllPlayers((prev) => applyTo(prev))
+    setTeamA((t) => applyTo(t))
+    setTeamB((t) => applyTo(t))
+  }
+
   // clic en foto/nombre del ranking:
   // admin → asignar foto | visitante → verla en grande (sin editar)
   const onAvatarClick = (p) => {
@@ -978,6 +999,11 @@ function App() {
                 </span>
                 {isAdmin && (
                   <>
+                    <span className="m3-penta-stepper" title="Contador de loses">
+                      <button onClick={() => bumpLosses(p, -1)} aria-label={`quitar lose a ${p.name}`}>−</button>
+                      <span className="m3-muted" title={`${l} loses`}>{l}L</span>
+                      <button onClick={() => bumpLosses(p, 1)} aria-label={`sumar lose a ${p.name}`}>+</button>
+                    </span>
                     <span className="m3-penta-stepper" title="Contador de pentakills">
                       <button onClick={() => bumpPenta(p, -1)} aria-label={`quitar pentakill a ${p.name}`}>−</button>
                       <button onClick={() => bumpPenta(p, 1)} aria-label={`sumar pentakill a ${p.name}`}>+</button>
