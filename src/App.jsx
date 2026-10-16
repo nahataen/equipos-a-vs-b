@@ -956,6 +956,15 @@ function App() {
         <div className="m3-card-head">
           <span className="material-symbols-rounded">casino</span>
           <h2>Ruleta random</h2>
+          <button
+            onClick={clearTeams}
+            className="m3-btn m3-btn-outlined"
+            style={{ height: 36, padding: '0 12px', marginLeft: 'auto' }}
+            disabled={!isAdmin}
+            title="Limpiar equipos"
+          >
+            <span className="material-symbols-rounded">restart_alt</span>
+          </button>
         </div>
         <p className="m3-support">Mezcla solo a los del partido actual (máx 5 por lado).</p>
         <div className="m3-fab-row">
@@ -966,10 +975,6 @@ function App() {
           <button onClick={assignBalanced} disabled={spinning || activePlayers.length < 2 || !isAdmin} className="m3-btn m3-btn-tonal" title={isAdmin ? 'Reparte por nivel (MMR) para un partido parejo' : 'Solo admin'}>
             <span className="material-symbols-rounded">balance</span>
             Balancear por nivel
-          </button>
-          <button onClick={clearTeams} className="m3-btn m3-btn-outlined" disabled={!isAdmin}>
-            <span className="material-symbols-rounded">restart_alt</span>
-            Limpiar
           </button>
         </div>
         <div className={`m3-teams ${spinning ? 'spinning' : ''}`}>
