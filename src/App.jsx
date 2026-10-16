@@ -975,7 +975,7 @@ function App() {
                   <span className="m3-stats">
                     <span className="stat stat-win" title={`${w} victorias`}>{w}W</span>
                     <span className="stat stat-loss" title={`${l} derrotas`}>{l}L</span>
-                    <span className="stat stat-wr" title={`Winrate ${wr}% en ${total} partidas`}>WR {wr}%</span>
+                    <span className="stat stat-wr" title={total ? `Winrate ${wr}% en ${total} partidas` : 'Sin partidas registradas'}>{total ? `WR ${wr}%` : 'WR —'}</span>
                   </span>
                 </span>
                 <span className="m3-wins-badge">
