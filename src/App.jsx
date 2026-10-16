@@ -879,7 +879,8 @@ function App() {
             <h2><span className="material-symbols-rounded">emoji_events</span> Cómo funciona el ranking</h2>
             <div className="m3-help-body">
               <h3>Tu puntaje secreto</h3>
-              <p>Todos empiezan igual. Si le ganas a un equipo más fuerte, subes más. Si pierdes contra uno más débil, bajas más. Lo normal es subir o bajar entre 15 y 18 por partido.</p>
+              <p>Todos empiezan con <b>400 puntos (Bronce IV - 0 LP)</b>. Ganar suma puntos y perder los quita: entre <b>15 y 18 por partido</b>.</p>
+              <p>Si le ganas a un equipo más fuerte, subes más. Si pierdes contra uno más débil, bajas más.</p>
               <h3>Lo que ves: rango y LP</h3>
               <p>Empiezas en <b>Bronce IV - 0 LP</b>. Cada división vale <b>100 LP</b> y cada nivel tiene 4 divisiones (de la IV a la I).</p>
               <table className="m3-help-table">
