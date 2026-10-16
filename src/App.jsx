@@ -56,7 +56,11 @@ create policy "demo" on players for all using (true) with check (true);
 -- alter table players add column if not exists streak int default 0;
 -- alter table players add column if not exists pentakills int default 0;
 -- alter table players add column if not exists avatar text;
--- update players set points = wins * 20 where points = 0 and wins > 0;`
+-- update players set points = wins * 20 where points = 0 and wins > 0;
+-- evita duplicados del mismo nombre (recomendado):
+-- create unique index if not exists players_name_lower_uidx on players (lower(name));
+-- realtime para ver cambios al instante en todos los dispositivos (opcional):
+-- alter publication supabase_realtime add table players;`
 
 // comprime la foto a 512px para que se vea nítida en grande y en chico
 const compressAvatar = (file) =>
@@ -134,26 +138,42 @@ function App() {
     [allPlayers, activeIds]
   )
 
-  // cargar ranking
+  // trae el ranking real de la DB y deja activeIds sin fantasmas
+  // (ids que ya no existen porque se borraron en otro dispositivo o en el dashboard)
+  const fetchFreshPlayers = async () => {
+    const { data, error } = await supabase
+      .from('players')
+      .select('*')
+      .order('created_at', { ascending: true })
+    if (error) throw error
+    const fresh = data ?? []
+    setAllPlayers(fresh)
+    const valid = new Set(fresh.map((p) => p.id))
+    setActiveIds((prev) => {
+      try {
+        const saved =
+          prev.length > 0
+            ? prev
+            : JSON.parse(localStorage.getItem(LS_ACTIVE) ?? 'null') ?? fresh.map((p) => p.id)
+        const cleaned = saved.filter((id) => valid.has(id))
+        // si no había nada guardado (primera vez), todos activos
+        if (prev.length === 0 && !localStorage.getItem(LS_ACTIVE)) return fresh.map((p) => p.id)
+        return cleaned
+      } catch {
+        return fresh.map((p) => p.id)
+      }
+    })
+    return fresh
+  }
+
+  // cargar ranking + mantenerlo sincronizado (dashboard / otro dispositivo)
   useEffect(() => {
     const load = async () => {
       if (isSupabaseConfigured) {
-        const { data, error } = await supabase
-          .from('players')
-          .select('*')
-          .order('created_at', { ascending: true })
-        if (error) {
+        try {
+          await fetchFreshPlayers()
+        } catch (error) {
           setStatus('Crea la tabla players con el SQL de abajo: ' + error.message)
-        } else {
-          setAllPlayers(data ?? [])
-          // por defecto, todos activos la primera vez
-          try {
-            const savedActive = localStorage.getItem(LS_ACTIVE)
-            if (savedActive) setActiveIds(JSON.parse(savedActive))
-            else setActiveIds((data ?? []).map((p) => p.id))
-          } catch {
-            setActiveIds((data ?? []).map((p) => p.id))
-          }
         }
       } else {
         try {
@@ -162,13 +182,37 @@ function App() {
             const list = JSON.parse(raw)
             setAllPlayers(list)
             const savedActive = localStorage.getItem(LS_ACTIVE)
-            if (savedActive) setActiveIds(JSON.parse(savedActive))
-            else setActiveIds(list.map((p) => p.id))
+            if (savedActive) {
+              const valid = new Set(list.map((p) => p.id))
+              setActiveIds(JSON.parse(savedActive).filter((id) => valid.has(id)))
+            } else setActiveIds(list.map((p) => p.id))
           }
         } catch {}
       }
     }
     load()
+
+    if (!isSupabaseConfigured) return
+    // revalida al volver a la pestaña (por si se borró en el dashboard)
+    const onFocus = () => {
+      fetchFreshPlayers().catch(() => {})
+    }
+    window.addEventListener('focus', onFocus)
+    // realtime si está habilitado en Supabase (best-effort, no rompe si no lo está)
+    let channel = null
+    try {
+      channel = supabase
+        .channel('players-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => {
+          fetchFreshPlayers().catch(() => {})
+        })
+        .subscribe()
+    } catch {}
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      if (channel) supabase.removeChannel(channel).catch(() => {})
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // persistencia local
@@ -222,31 +266,68 @@ function App() {
     if (!requireAdmin()) return
     const clean = name.trim()
     if (!clean) return
-    const existing = allPlayers.find((p) => p.name.toLowerCase() === clean.toLowerCase())
+    setStatus('')
+    // revalida contra la DB: el estado local puede estar desactualizado
+    // (ej. se borró en el dashboard u otro dispositivo) y bloquearía recrear
+    let list = allPlayers
+    if (isSupabaseConfigured) {
+      try {
+        list = await fetchFreshPlayers()
+      } catch (err) {
+        setStatus(err.message)
+        return
+      }
+    }
+    const currentActive = isSupabaseConfigured
+      ? (() => {
+          try {
+            const raw = localStorage.getItem(LS_ACTIVE)
+            if (raw == null) return list.map((p) => p.id)
+            return JSON.parse(raw).filter((id) => list.some((p) => p.id === id))
+          } catch {
+            return list.map((p) => p.id)
+          }
+        })()
+      : activeIds
+    const existing = list.find((p) => p.name.toLowerCase() === clean.toLowerCase())
     if (existing) {
-      if (!activeIds.includes(existing.id)) {
-        if (activePlayers.length >= MAX_TOTAL) {
+      if (!currentActive.includes(existing.id)) {
+        if (currentActive.length >= MAX_TOTAL) {
           setStatus(`Partido lleno: máximo ${MAX_TOTAL} (5v5)`)
           return
         }
-        setActiveIds((prev) => [...prev, existing.id])
+        const next = [...currentActive, existing.id]
+        setActiveIds(next)
       }
-      setStatus(existing ? `"${existing.name}" ya estaba en ranking, entró al partido.` : '')
+      setStatus(`"${existing.name}" ya estaba en ranking, entró al partido.`)
       setName('')
       return
     }
-    if (activePlayers.length >= MAX_TOTAL) {
+    if (currentActive.length >= MAX_TOTAL) {
       setStatus(`Máximo ${MAX_TOTAL} jugadores en partido (5 vs 5)`)
       return
     }
-    setStatus('')
     if (isSupabaseConfigured) {
       const { data, error } = await supabase
         .from('players')
         .insert({ name: clean, wins: 0, losses: 0, points: 0, streak: 0, pentakills: 0 })
         .select()
-      if (error) setStatus(error.message)
-      else if (data && data[0]) {
+      if (error) {
+        // si otro dispositivo lo creó a la vez (unique), revalida y reactiva
+        if (error.code === '23505') {
+          try {
+            const fresh = await fetchFreshPlayers()
+            const dup = fresh.find((p) => p.name.toLowerCase() === clean.toLowerCase())
+            if (dup) {
+              setActiveIds((prev) => (prev.includes(dup.id) ? prev : [...prev, dup.id]))
+              setStatus(`"${dup.name}" ya estaba en ranking, entró al partido.`)
+              setName('')
+              return
+            }
+          } catch {}
+        }
+        setStatus(error.message)
+      } else if (data && data[0]) {
         setAllPlayers((prev) => [...prev, data[0]])
         setActiveIds((prev) => [...prev, data[0].id])
       }
@@ -279,12 +360,21 @@ function App() {
   const deleteFromRanking = async (id, playerName) => {
     if (!requireAdmin()) return
     if (!window.confirm(`¿Borrar a "${playerName}" del ranking para siempre? Sus wins se pierden.`)) return
-    removeFromMatchSilent(id)
     if (isSupabaseConfigured) {
       const { error } = await supabase.from('players').delete().eq('id', id)
-      if (!error) setAllPlayers((prev) => prev.filter((p) => p.id !== id))
-      else setStatus(error.message)
+      if (error) {
+        setStatus(error.message)
+        return
+      }
+      // revalida desde la DB: así el nombre queda libre para recrearlo
+      try {
+        await fetchFreshPlayers()
+      } catch (err) {
+        setStatus(err.message)
+      }
+      removeFromMatchSilent(id)
     } else {
+      removeFromMatchSilent(id)
       setAllPlayers((prev) => prev.filter((p) => p.id !== id))
     }
   }
@@ -781,6 +871,16 @@ function App() {
         <div className="m3-card-head">
           <span className="material-symbols-rounded">leaderboard</span>
           <h2>Ranking histórico</h2>
+          {isSupabaseConfigured && (
+            <button
+              onClick={() => fetchFreshPlayers().catch((err) => setStatus(err.message))}
+              className="m3-btn m3-btn-outlined"
+              style={{ height: 36, padding: '0 12px', marginLeft: 'auto' }}
+              title="Recargar desde la base de datos"
+            >
+              <span className="material-symbols-rounded">refresh</span>
+            </button>
+          )}
         </div>
         <p className="m3-support">Se conserva aunque salgan del partido. Ganar +{WIN_PTS} pts, perder −{LOSS_PTS} pts. Solo admin puede borrar definitivo.</p>
         {ranking.length === 0 ? (
