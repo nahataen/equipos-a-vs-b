@@ -908,7 +908,7 @@ function App() {
         {ranking.length === 0 ? (
           <p className="m3-muted">Sin datos aún.</p>
         ) : (
-          <div className="m3-list">
+          <div className="m3-list rank-list">
             {ranking.map((p, i) => {
               const pts = getPoints(p)
               const r = getRank(pts)
@@ -919,12 +919,14 @@ function App() {
               const total = w + l
               const wr = total ? Math.round((w / total) * 100) : 0
               const onFire = st >= FIRE_STREAK
+              const posClass = i === 0 ? 'pos-1' : i === 1 ? 'pos-2' : i === 2 ? 'pos-3' : ''
               return (
               <div
                 key={p.id}
-                className={`m3-list-row rank-in ${i === 0 ? 'top' : ''} ${onFire ? 'on-fire' : ''}`}
+                className={`m3-list-row rank-card rank-in ${i === 0 ? 'top' : ''} ${onFire ? 'on-fire' : ''}`}
                 style={{ animationDelay: `${Math.min(i, 10) * 0.05}s` }}
               >
+                <span className={`m3-pos ${posClass}`} title={`Puesto ${i + 1}`}>{i + 1}</span>
                 <button
                   onClick={() => onAvatarClick(p)}
                   className="m3-avatar"
@@ -956,8 +958,6 @@ function App() {
                   ) : (
                     p.name
                   )}
-                  <br />
-                  <span className="m3-muted">{r.name} {r.lp} LP • {w}W {l}L • WR {wr}%</span>
                   {onFire && (
                     <span className="m3-fire" title={`Racha de ${st} victorias`}>
                       <span className="material-symbols-rounded">local_fire_department</span>
@@ -971,6 +971,12 @@ function App() {
                     </span>
                   )}
                   {!activeIds.includes(p.id) && <span className="m3-muted"> • fuera</span>}
+                  <span className="m3-rank-line">{r.name} • {r.lp} LP</span>
+                  <span className="m3-stats">
+                    <span className="stat stat-win" title={`${w} victorias`}>{w}W</span>
+                    <span className="stat stat-loss" title={`${l} derrotas`}>{l}L</span>
+                    <span className="stat stat-wr" title={`Winrate ${wr}% en ${total} partidas`}>WR {wr}%</span>
+                  </span>
                 </span>
                 <span className="m3-wins-badge">
                   <span className="material-symbols-rounded">military_tech</span>

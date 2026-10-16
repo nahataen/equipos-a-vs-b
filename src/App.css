@@ -343,6 +343,56 @@
 }
 .m3-wins-badge .material-symbols-rounded { font-size: 16px; }
 
+/* ===== Ranking como tarjetas separadas ===== */
+.m3-list.rank-list { gap: 10px; }
+.m3-list-row.rank-card {
+  background: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-shape-l);
+  padding: 12px 14px;
+  gap: 12px;
+  box-shadow: var(--md-elev-1);
+}
+.m3-list-row.rank-card:hover { background: var(--md-sys-color-surface-container); }
+.m3-list-row.rank-card.top {
+  border-color: var(--md-sys-color-primary);
+  box-shadow: var(--md-elev-2);
+}
+/* puesto con medalla */
+.m3-pos {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; flex-shrink: 0;
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface-variant);
+  font-weight: 800; font-size: 14px;
+}
+.m3-pos.pos-1 { background: linear-gradient(180deg, #ffd54d, #c8930a); color: #3d2b00; }
+.m3-pos.pos-2 { background: linear-gradient(180deg, #e8eaed, #9aa0a6); color: #202124; }
+.m3-pos.pos-3 { background: linear-gradient(180deg, #f0b27d, #a05a2c); color: #3a1f00; }
+/* nombre + rango + stats en columna */
+.m3-list-row.rank-card .m3-list-name {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  font-weight: 600; font-size: 15px;
+}
+.m3-rank-line {
+  font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--md-sys-color-primary);
+}
+.m3-stats { display: flex; flex-wrap: wrap; gap: 6px; }
+.stat {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 800;
+}
+.stat-win { background: #ddf3e2; color: #14622f; border: 1px solid #9ad8ab; }
+.stat-loss { background: var(--md-sys-color-error-container); color: var(--md-sys-color-error); border: 1px solid currentColor; }
+.stat-wr { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m3-list-row.rank-card .m3-fire, .m3-list-row.rank-card .m3-penta { margin-left: 6px; }
+@media (max-width: 480px) {
+  .m3-list-row.rank-card { padding: 10px 12px; gap: 10px; }
+  .m3-wins-badge { padding: 4px 10px; font-size: 12px; }
+}
+
 /* Alert + details */
 .m3-alert {
   display: flex; gap: 8px; align-items: center;
