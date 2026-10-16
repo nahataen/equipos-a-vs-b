@@ -12,6 +12,18 @@ const LS_HISTORY = 'team-winhistory-v1'
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'equipo123'
 
 const uid = () => Math.random().toString(36).slice(2, 10)
+// PGRST204 = la columna no existe en la tabla (falta migrar en Supabase SQL)
+const isSchemaCacheError = (error) => error?.code === 'PGRST204'
+// intenta el update completo (ranked); si faltan columnas, reintenta con el mínimo
+const safeUpdate = async (id, full, minimal) => {
+  const first = await supabase.from('players').update(full).eq('id', id)
+  if (!first.error) return first
+  if (isSchemaCacheError(first.error) && minimal) {
+    if (Object.keys(minimal).length === 0) return { error: null }
+    return await supabase.from('players').update(minimal).eq('id', id)
+  }
+  return first
+}
 const shuffle = (arr) => {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -308,10 +320,12 @@ function App() {
       return
     }
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase
-        .from('players')
-        .insert({ name: clean, wins: 0, losses: 0, points: 0, streak: 0, pentakills: 0 })
-        .select()
+      const rankedPayload = { name: clean, wins: 0, losses: 0, points: 0, streak: 0, pentakills: 0 }
+      let { data, error } = await supabase.from('players').insert(rankedPayload).select()
+      if (error && isSchemaCacheError(error)) {
+        // tabla sin migrar a ranked: reintenta con columnas básicas
+        ;({ data, error } = await supabase.from('players').insert({ name: clean, wins: 0 }).select())
+      }
       if (error) {
         // si otro dispositivo lo creó a la vez (unique), revalida y reactiva
         if (error.code === '23505') {
@@ -446,16 +460,20 @@ function App() {
       })
     if (isSupabaseConfigured) {
       for (const p of winners) {
-        await supabase
-          .from('players')
-          .update({ wins: (p.wins ?? 0) + 1, points: getPoints(p) + WIN_PTS, streak: getStreak(p) + 1 })
-          .eq('id', p.id)
+        const { error } = await safeUpdate(
+          p.id,
+          { wins: (p.wins ?? 0) + 1, points: getPoints(p) + WIN_PTS, streak: getStreak(p) + 1 },
+          { wins: (p.wins ?? 0) + 1 }
+        )
+        if (error && !isSchemaCacheError(error)) setStatus(error.message)
       }
       for (const p of losers) {
-        await supabase
-          .from('players')
-          .update({ losses: getLosses(p) + 1, points: Math.max(0, getPoints(p) - LOSS_PTS), streak: 0 })
-          .eq('id', p.id)
+        const { error } = await safeUpdate(
+          p.id,
+          { losses: getLosses(p) + 1, points: Math.max(0, getPoints(p) - LOSS_PTS), streak: 0 },
+          {} // sin columnas ranked no hay nada que restar al perdedor
+        )
+        if (error && !isSchemaCacheError(error)) setStatus(error.message)
       }
       const { data } = await supabase
         .from('players')
@@ -486,16 +504,20 @@ function App() {
     const restoreStreak = (p) => (prev[p.id] ?? Math.max(0, getStreak(p) - (idSet.has(p.id) ? 1 : 0)))
     if (isSupabaseConfigured) {
       for (const p of allPlayers.filter((p) => idSet.has(p.id))) {
-        await supabase
-          .from('players')
-          .update({ wins: Math.max(0, (p.wins ?? 0) - 1), points: Math.max(0, getPoints(p) - WIN_PTS), streak: restoreStreak(p) })
-          .eq('id', p.id)
+        const { error } = await safeUpdate(
+          p.id,
+          { wins: Math.max(0, (p.wins ?? 0) - 1), points: Math.max(0, getPoints(p) - WIN_PTS), streak: restoreStreak(p) },
+          { wins: Math.max(0, (p.wins ?? 0) - 1) }
+        )
+        if (error && !isSchemaCacheError(error)) setStatus(error.message)
       }
       for (const p of allPlayers.filter((p) => loserSet.has(p.id))) {
-        await supabase
-          .from('players')
-          .update({ losses: Math.max(0, getLosses(p) - 1), points: getPoints(p) + LOSS_PTS, streak: restoreStreak(p) })
-          .eq('id', p.id)
+        const { error } = await safeUpdate(
+          p.id,
+          { losses: Math.max(0, getLosses(p) - 1), points: getPoints(p) + LOSS_PTS, streak: restoreStreak(p) },
+          {}
+        )
+        if (error && !isSchemaCacheError(error)) setStatus(error.message)
       }
       const { data } = await supabase
         .from('players')
