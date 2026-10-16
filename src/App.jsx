@@ -147,12 +147,13 @@ function App() {
   const [preview, setPreview] = useState(null) // {src, name} para visitantes
   const fileRef = useRef(null)
 
-  // Esc cierra la vista previa y el login
+  // Esc cierra la vista previa, el login y la ayuda
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') {
         setPreview(null)
         setShowLogin(false)
+        setShowHelp(false)
       }
     }
     window.addEventListener('keydown', onKey)
@@ -163,6 +164,7 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem(LS_ADMIN) === '1')
   const [pw, setPw] = useState('')
   const [showLogin, setShowLogin] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
   const [showPw, setShowPw] = useState(false)
   const [loginError, setLoginError] = useState(false)
 
@@ -805,6 +807,10 @@ function App() {
           <p>Ruleta random • 1v1 hasta 5v5 • Ranking{!isSupabaseConfigured && ' • modo local'}</p>
         </div>
         <span className="m3-mode-badge">{mode}</span>
+        <button onClick={() => setShowHelp(true)} className="m3-btn m3-btn-outlined" title="Cómo funciona el ranking">
+          <span className="material-symbols-rounded">help</span>
+          <span className="m3-btn-label">Ayuda</span>
+        </button>
         {isAdmin ? (
           <button onClick={logout} className="m3-btn m3-btn-outlined" title="Cerrar sesión admin">
             <span className="material-symbols-rounded">lock_open</span>
@@ -863,6 +869,43 @@ function App() {
                 Entrar como admin
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showHelp && (
+        <div className="m3-lightbox" onClick={() => setShowHelp(false)}>
+          <div className="m3-lightbox-card m3-help-card" onClick={(e) => e.stopPropagation()}>
+            <h2><span className="material-symbols-rounded">emoji_events</span> Cómo funciona el ranking</h2>
+            <div className="m3-help-body">
+              <h3>Nivel oculto (MMR)</h3>
+              <p>Cada jugador tiene un puntaje invisible que mide su nivel. Todos empiezan en <b>1000</b>. Por partida ganas o pierdes entre <b>15 y 18 puntos</b> según el rival: ganarle al fuerte paga más, perder siendo favorito castiga más.</p>
+              <h3>Lo que ves: rango y LP</h3>
+              <p>Al puntaje se le restan 600 y se muestra como rango. Empiezas en <b>Bronce IV - 0 LP</b> (= 400 puntos). Cada división vale <b>100 LP</b> (0–99) y cada tier tiene 4 divisiones (IV → III → II → I).</p>
+              <table className="m3-help-table">
+                <thead><tr><th>Tier</th><th>Puntos</th><th>Divisiones</th></tr></thead>
+                <tbody>
+                  <tr><td>Hierro</td><td>0 – 399</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Bronce</td><td>400 – 799</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Plata</td><td>800 – 1199</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Oro</td><td>1200 – 1599</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Platino</td><td>1600 – 1999</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Esmeralda</td><td>2000 – 2399</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Diamante</td><td>2400 – 2799</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Maestro</td><td>2800+</td><td>sin divisiones</td></tr>
+                </tbody>
+              </table>
+              <h3>Colocación</h3>
+              <p>Con menos de <b>5 partidas</b> no tienes rango oficial: apareces abajo como <b>En colocación (X/5)</b>. A la 5ª entras al ladder.</p>
+              <h3>Equipos</h3>
+              <p><b>Random</b> para variar compañeros (si sale disparejo, el sistema lo compensa). <b>Balancear por nivel</b> reparte por puntaje para un partido parejo.</p>
+              <h3>Orden del ladder</h3>
+              <p>1) más puntos, 2) mejor winrate, 3) más partidas jugadas.</p>
+            </div>
+            <button onClick={() => setShowHelp(false)} className="m3-btn m3-btn-tonal">
+              <span className="material-symbols-rounded">close</span>
+              Cerrar
+            </button>
           </div>
         </div>
       )}

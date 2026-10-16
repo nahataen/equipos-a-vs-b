@@ -329,6 +329,16 @@
 }
 .m3-lightbox-card p { font-size: 18px; font-weight: 500; margin: 12px 0; }
 .m3-lightbox-card .m3-btn { width: 100%; }
+/* Modal de ayuda: más ancho, con scroll y tabla de rangos */
+.m3-help-card { max-width: min(94vw, 560px); max-height: 86vh; overflow-y: auto; text-align: left; }
+.m3-help-card h2 { display: flex; align-items: center; gap: 8px; font-size: 20px; margin: 0 0 8px; }
+.m3-help-card h2 .material-symbols-rounded { font-size: 26px; color: var(--md-sys-color-primary); }
+.m3-help-body h3 { font-size: 15px; margin: 14px 0 4px; color: var(--md-sys-color-primary); }
+.m3-help-body p { font-size: 14px; font-weight: 400; margin: 4px 0; }
+.m3-help-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+.m3-help-table th, .m3-help-table td { padding: 6px 8px; border-bottom: 1px solid var(--md-sys-color-outline-variant); text-align: left; }
+.m3-help-table thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--md-sys-color-on-surface-variant); }
+.m3-help-table tbody tr:nth-child(odd) { background: var(--md-sys-color-surface-container); }
 .m3-list-name { flex: 1; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .m3-wins-badge {
   display: inline-flex; align-items: center; gap: 4px;
@@ -391,6 +401,7 @@
 @media (max-width: 480px) {
   .m3-list-row.rank-card { padding: 10px 12px; gap: 10px; }
   .m3-wins-badge { padding: 4px 10px; font-size: 12px; }
+  .m3-btn .m3-btn-label { display: none; }
 }
 
 /* Alert + details */
