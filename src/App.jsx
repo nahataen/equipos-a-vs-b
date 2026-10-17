@@ -35,7 +35,7 @@ const shuffle = (arr) => {
 
 // Elo (MMR oculto): K=32, base 1000, piso 0. El cambio se calcula con el
 // promedio de cada equipo y es el mismo para todo el equipo ganador/perdedor.
-const ELO_K = 32
+const ELO_K = 64 // doble de rápido: ~±32 por partida (era 32)
 const ELO_BASE = 1000
 const MIN_GAMES = 5 // menos de esto = en colocación (fuera del ladder)
 // legado: solo como respaldo para historiales viejos sin delta Elo
@@ -48,10 +48,10 @@ const getMmr = (p) => p.mmr ?? (p.points != null ? p.points + 600 : ELO_BASE)
 // puntos_rango = lo único que se muestra (MMR inicial 1000 = Bronce IV 0 LP)
 const getPuntos = (p) => getMmr(p) - 600
 
-// Divisiones de 100 LP (0-99), 4 por tier (400 pts). Maestro sin divisiones.
-const ELO_TIERS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Esmeralda', 'Diamante']
+// Divisiones de 100 LP (0-99), 4 por tier (400 pts). Maestro desde 2000.
+const ELO_TIERS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Maestro']
 const getRank = (puntos) => {
-  if (puntos >= 2800) return { name: 'Maestro', div: null, lp: null }
+  if (puntos >= 2000) return { name: 'Maestro', div: null, lp: null }
   return {
     name: ELO_TIERS[Math.floor(puntos / 400)],
     div: ['IV', 'III', 'II', 'I'][Math.floor((puntos % 400) / 100)],
@@ -697,10 +697,11 @@ function App() {
     const wr = total ? Math.round((w / total) * 100) : 0
     const onFire = st >= FIRE_STREAK
     const posClass = !unplaced && i < 3 ? `pos-${i + 1}` : ''
+    const tierClass = unplaced ? '' : `tier-${r.name.toLowerCase()}`
     return (
       <div
         key={p.id}
-        className={`m3-list-row rank-card rank-in ${!unplaced && i === 0 ? 'top' : ''} ${onFire ? 'on-fire' : ''}`}
+        className={`m3-list-row rank-card rank-in ${tierClass} ${!unplaced && i === 0 ? 'top' : ''} ${onFire ? 'on-fire' : ''}`}
         style={{ animationDelay: `${Math.min(i, 10) * 0.05}s` }}
       >
         <span className={`m3-pos ${posClass}`} title={unplaced ? 'En colocación' : `Puesto ${posLabel}`}>{posLabel}</span>
@@ -879,7 +880,7 @@ function App() {
             <h2><span className="material-symbols-rounded">emoji_events</span> Cómo funciona el ranking</h2>
             <div className="m3-help-body">
               <h3>Tu puntaje secreto</h3>
-              <p>Todos empiezan con <b>400 puntos (Bronce IV - 0 LP)</b>. Ganar suma puntos y perder los quita: entre <b>15 y 18 por partido</b>.</p>
+              <p>Todos empiezan con <b>400 puntos (Bronce IV - 0 LP)</b>. Ganar suma puntos y perder los quita: lo normal es moverse <b>unos 30-35 por partido</b>.</p>
               <p>Si le ganas a un equipo más fuerte, subes más. Si pierdes contra uno más débil, bajas más.</p>
               <h3>Lo que ves: rango y LP</h3>
               <p>Empiezas en <b>Bronce IV - 0 LP</b>. Cada división vale <b>100 LP</b> y cada nivel tiene 4 divisiones (de la IV a la I).</p>
@@ -891,9 +892,7 @@ function App() {
                   <tr><td>Plata</td><td>800 – 1199</td><td>IV, III, II, I</td></tr>
                   <tr><td>Oro</td><td>1200 – 1599</td><td>IV, III, II, I</td></tr>
                   <tr><td>Platino</td><td>1600 – 1999</td><td>IV, III, II, I</td></tr>
-                  <tr><td>Esmeralda</td><td>2000 – 2399</td><td>IV, III, II, I</td></tr>
-                  <tr><td>Diamante</td><td>2400 – 2799</td><td>IV, III, II, I</td></tr>
-                  <tr><td>Maestro</td><td>2800+</td><td>sin divisiones</td></tr>
+                  <tr><td>Maestro</td><td>2000+</td><td>sin divisiones</td></tr>
                 </tbody>
               </table>
               <h3>Por qué a veces dan más y a veces menos</h3>
