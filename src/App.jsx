@@ -1063,7 +1063,8 @@ function App() {
             <h3><span className="material-symbols-rounded">shield</span>Equipo A ({teamA.length}){teamA.length > 0 && ` · ${Math.round(teamA.reduce((s, p) => s + getPuntos(p), 0) / teamA.length)} pts`}</h3>
             {teamA.map((p) => (
               <div key={p.id} className="m3-player">
-                <span className="material-symbols-rounded">person</span>{p.name}
+                {p.avatar ? <img className="m3-player-avatar" src={p.avatar} alt={p.name} /> : <span className="material-symbols-rounded">person</span>}
+                {p.name}
               </div>
             ))}
             {teamA.length === 0 && <span className="m3-muted">—</span>}
@@ -1073,7 +1074,8 @@ function App() {
             <h3><span className="material-symbols-rounded">shield</span>Equipo B ({teamB.length}){teamB.length > 0 && ` · ${Math.round(teamB.reduce((s, p) => s + getPuntos(p), 0) / teamB.length)} pts`}</h3>
             {teamB.map((p) => (
               <div key={p.id} className="m3-player">
-                <span className="material-symbols-rounded">person</span>{p.name}
+                {p.avatar ? <img className="m3-player-avatar" src={p.avatar} alt={p.name} /> : <span className="material-symbols-rounded">person</span>}
+                {p.name}
               </div>
             ))}
             {teamB.length === 0 && <span className="m3-muted">—</span>}
