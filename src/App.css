@@ -381,12 +381,16 @@
 .m3-list-row.rank-card.tier-plata { border-color: #9fb4c0; background: linear-gradient(180deg, rgba(159,180,192,.14), transparent 70%); }
 .m3-list-row.rank-card.tier-oro { border-color: #e8a93c; background: linear-gradient(180deg, rgba(232,169,60,.14), transparent 70%); }
 .m3-list-row.rank-card.tier-platino { border-color: #45b5c4; background: linear-gradient(180deg, rgba(69,181,196,.14), transparent 70%); }
+.m3-list-row.rank-card.tier-esmeralda { border-color: #2fbf71; background: linear-gradient(180deg, rgba(47,191,113,.14), transparent 70%); }
+.m3-list-row.rank-card.tier-diamante { border-color: #5aa7e8; background: linear-gradient(180deg, rgba(90,167,232,.14), transparent 70%); }
 .m3-list-row.rank-card.tier-maestro { border-color: #8b5cf6; background: linear-gradient(180deg, rgba(139,92,246,.16), transparent 70%); box-shadow: 0 0 14px rgba(139,92,246,.35); }
 .m3-list-row.rank-card.tier-hierro .m3-rank-line { color: #8a8279; }
 .m3-list-row.rank-card.tier-bronce .m3-rank-line { color: #a8641f; }
 .m3-list-row.rank-card.tier-plata .m3-rank-line { color: #6e8794; }
 .m3-list-row.rank-card.tier-oro .m3-rank-line { color: #b07c17; }
 .m3-list-row.rank-card.tier-platino .m3-rank-line { color: #1e8c9b; }
+.m3-list-row.rank-card.tier-esmeralda .m3-rank-line { color: #18915a; }
+.m3-list-row.rank-card.tier-diamante .m3-rank-line { color: #2b7fd4; }
 .m3-list-row.rank-card.tier-maestro .m3-rank-line { color: #7c3aed; }
 /* puesto con medalla */
 .m3-pos {

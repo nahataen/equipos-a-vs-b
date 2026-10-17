@@ -48,10 +48,10 @@ const getMmr = (p) => p.mmr ?? (p.points != null ? p.points + 600 : ELO_BASE)
 // puntos_rango = lo único que se muestra (MMR inicial 1000 = Bronce IV 0 LP)
 const getPuntos = (p) => getMmr(p) - 600
 
-// Divisiones de 100 LP (0-99), 4 por tier (400 pts). Maestro desde 2000.
-const ELO_TIERS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Maestro']
+// Divisiones de 100 LP (0-99), 4 por tier (400 pts). Maestro desde 2800.
+const ELO_TIERS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Esmeralda', 'Diamante']
 const getRank = (puntos) => {
-  if (puntos >= 2000) return { name: 'Maestro', div: null, lp: null }
+  if (puntos >= 2800) return { name: 'Maestro', div: null, lp: null }
   return {
     name: ELO_TIERS[Math.floor(puntos / 400)],
     div: ['IV', 'III', 'II', 'I'][Math.floor((puntos % 400) / 100)],
@@ -892,7 +892,9 @@ function App() {
                   <tr><td>Plata</td><td>800 – 1199</td><td>IV, III, II, I</td></tr>
                   <tr><td>Oro</td><td>1200 – 1599</td><td>IV, III, II, I</td></tr>
                   <tr><td>Platino</td><td>1600 – 1999</td><td>IV, III, II, I</td></tr>
-                  <tr><td>Maestro</td><td>2000+</td><td>sin divisiones</td></tr>
+                  <tr><td>Esmeralda</td><td>2000 – 2399</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Diamante</td><td>2400 – 2799</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Maestro</td><td>2800+</td><td>sin divisiones</td></tr>
                 </tbody>
               </table>
               <h3>Por qué a veces dan más y a veces menos</h3>
