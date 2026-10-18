@@ -1,6 +1,8 @@
-// Sistema ranked estilo LoL: base 1000, +20/-20, piso 0.
-// Agrega partidas nuevas al array GAMES (w: ganadores, l: perdedores) y corre: node ranked.js
-const BASE = 1000, WIN = 20, LOSS = 20, MIN_GAMES = 5;
+// Sistema ranked con LP por racha (mismas reglas que la app):
+// base gana +30 / pierde −15; racha 3+ victorias → gana +35 y perder esa cuesta −12;
+// racha 3+ derrotas → pierde −20; piso 0. Agrega partidas a GAMES y corre: node ranked.js
+const BASE = 400, WIN = 30, WIN_HOT = 35, LOSS = 15, LOSS_MERCY = 12, LOSS_COLD = 20;
+const HOT = 3, COLD = 3, MIN_GAMES = 5;
 const TIERS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Esmeralda', 'Diamante'];
 
 const GAMES = [
@@ -22,13 +24,26 @@ function rankOf(p) {
   const div = ['IV', 'III', 'II', 'I'][Math.floor((p % 400) / 100)];
   return `${tier} ${div} - ${p % 100} LP`;
 }
+// mismos helpers que la app (src/App.jsx)
+const nextStreakOnWin = (s) => (s > 0 ? s + 1 : 1);
+const nextStreakOnLoss = (s) => (s < 0 ? s - 1 : -1);
+const lpForWin = (s) => (nextStreakOnWin(s) >= HOT ? WIN_HOT : WIN);
+const lpForLoss = (s) => (s > 0 ? LOSS_MERCY : Math.abs(nextStreakOnLoss(s)) >= COLD ? LOSS_COLD : LOSS);
 
 const st = {};
 const all = new Set([...GAMES.flatMap((g) => [...g.w, ...g.l]), ...EXTRA]);
-for (const n of all) st[n] = { wins: 0, losses: 0, points: BASE, hist: [] };
+for (const n of all) st[n] = { wins: 0, losses: 0, points: BASE, streak: 0, hist: [] };
 GAMES.forEach((g, i) => {
-  for (const n of g.w) { const s = st[n]; s.wins++; s.points += WIN; s.hist.push(`P${i + 1}:+20→${s.points}`); }
-  for (const n of g.l) { const s = st[n]; s.losses++; s.points = Math.max(0, s.points - LOSS); s.hist.push(`P${i + 1}:-20→${s.points}`); }
+  for (const n of g.w) {
+    const s = st[n], d = lpForWin(s.streak);
+    s.wins++; s.points += d; s.streak = nextStreakOnWin(s.streak);
+    s.hist.push(`P${i + 1}:+${d}→${s.points}`);
+  }
+  for (const n of g.l) {
+    const s = st[n], d = lpForLoss(s.streak);
+    s.losses++; s.points = Math.max(0, s.points - d); s.streak = nextStreakOnLoss(s.streak);
+    s.hist.push(`P${i + 1}:-${d}→${s.points}`);
+  }
 });
 
 const rows = [...all].map((n) => {
@@ -38,17 +53,25 @@ const rows = [...all].map((n) => {
 // Verificaciones
 const tw = rows.reduce((a, r) => a + r.wins, 0), tl = rows.reduce((a, r) => a + r.losses, 0);
 const badGames = rows.filter((r) => r.wins + r.losses !== r.games);
-const badPts = rows.filter((r) => r.points !== Math.max(0, BASE + WIN * r.wins - LOSS * r.losses));
+const badDeltas = rows.filter((r) => r.hist.some((h) => {
+  const d = parseInt(h.split(':')[1]);
+  return r.hist.includes(h) && Math.abs(d) !== 12 && Math.abs(d) !== 15 && Math.abs(d) !== 20 && Math.abs(d) !== 30 && Math.abs(d) !== 35;
+}));
+const hotWins = rows.reduce((a, r) => a + r.hist.filter((h) => h.includes(':+35')).length, 0);
+const mercyLosses = rows.reduce((a, r) => a + r.hist.filter((h) => h.includes(':-12')).length, 0);
+const coldLosses = rows.reduce((a, r) => a + r.hist.filter((h) => h.includes(':-20')).length, 0);
 console.log(`VERIF a) total wins=${tw} total loses=${tl} -> ${tw === tl ? 'OK' : 'MAL'}`);
 console.log(`VERIF b) wins+loses=partidas -> ${badGames.length === 0 ? 'OK' : 'MAL: ' + badGames.map((r) => r.n)}`);
-console.log(`VERIF c) puntos=1000+20W-20L -> ${badPts.length === 0 ? 'OK' : 'MAL: ' + badPts.map((r) => r.n)}`);
+console.log(`VERIF c) solo deltas de la tabla (30/35/12/15/20) -> ${badDeltas.length === 0 ? 'OK' : 'MAL: ' + badDeltas.map((r) => r.n)}`);
+console.log(`VERIF d) rachas: +35 x${hotWins}, -12 x${mercyLosses}, -20 x${coldLosses} (esperado >0 cada uno)`);
 
 // Orden: puntos, winrate, partidas, nombre
 rows.sort((a, b) => b.points - a.points || (b.wr ?? -1) - (a.wr ?? -1) || b.games - a.games || a.n.localeCompare(b.n));
-console.log('\n#  Jugador      Rango                PJ  W  L  WR%    Pts');
+console.log('\n#  Jugador      Rango                PJ  W  L  WR%    Pts  Racha');
 rows.forEach((r, i) => {
   const rango = r.games < MIN_GAMES ? 'En colocación' : rankOf(r.points);
-  console.log(`${String(i + 1).padStart(2)} ${(NAMES[r.n] ?? r.n).padEnd(12)} ${rango.padEnd(20)} ${String(r.games).padStart(2)}  ${r.wins}  ${r.losses}  ${r.wr === null ? '—' : r.wr.toFixed(1).padStart(5)}  ${r.points}`);
+  const racha = r.streak > 0 ? `🔥${r.streak}` : r.streak < 0 ? `❄${-r.streak}` : '—';
+  console.log(`${String(i + 1).padStart(2)} ${(NAMES[r.n] ?? r.n).padEnd(12)} ${rango.padEnd(20)} ${String(r.games).padStart(2)}  ${r.wins}  ${r.losses}  ${r.wr === null ? '—' : r.wr.toFixed(1).padStart(5)}  ${String(r.points).padStart(4)}  ${racha}`);
 });
 console.log('\nHISTORIAL (solo partidas jugadas):');
 for (const r of rows) console.log(`- ${NAMES[r.n] ?? r.n}: ${r.hist.join(' | ') || 'sin partidas'}`);

@@ -33,16 +33,31 @@ const shuffle = (arr) => {
   return a
 }
 
-// Elo (MMR oculto): K=32, base 1000, piso 0. El cambio se calcula con el
-// promedio de cada equipo y es el mismo para todo el equipo ganador/perdedor.
-const ELO_K = 64 // doble de rápido: ~±32 por partida (era 32)
-const ELO_BASE = 1000
+// LP por racha (estilo LoL simplificado):
+// base: gana +30 / pierde −15. Racha de 3+ victorias seguidas: gana +35.
+// Perder con racha de victorias activa (rompe la racha): solo −12.
+// Racha de 3+ derrotas seguidas: −20 (castigo). Tras romper racha vuelve el base.
+const LP_WIN = 30
+const LP_WIN_HOT = 35
+const LP_LOSS = 15
+const LP_LOSS_MERCY = 12
+const LP_LOSS_COLD = 20
+const HOT_STREAK = 3
+const COLD_STREAK = 3
+const nextStreakOnWin = (s) => (s > 0 ? s + 1 : 1)
+const nextStreakOnLoss = (s) => (s < 0 ? s - 1 : -1)
+const lpForWin = (streakBefore) => (nextStreakOnWin(streakBefore) >= HOT_STREAK ? LP_WIN_HOT : LP_WIN)
+const lpForLoss = (streakBefore) =>
+  streakBefore > 0
+    ? LP_LOSS_MERCY
+    : Math.abs(nextStreakOnLoss(streakBefore)) >= COLD_STREAK
+      ? LP_LOSS_COLD
+      : LP_LOSS
 const MIN_GAMES = 5 // menos de esto = en colocación (fuera del ladder)
-// legado: solo como respaldo para historiales viejos sin delta Elo
-const WIN_PTS = 20
-const LOSS_PTS = 20
-const rhalf = (x) => (x >= 0 ? Math.floor(x + 0.5) : Math.ceil(x - 0.5))
-const eloExpected = (a, b) => 1 / (1 + Math.pow(10, (b - a) / 400))
+// legado: solo como respaldo para historiales viejos sin deltas guardados
+const WIN_PTS = 30
+const LOSS_PTS = 15
+const ELO_BASE = 1000
 // MMR del jugador; si falta la columna se aproxima desde puntos legacy (base 0 -> escala 600)
 const getMmr = (p) => p.mmr ?? (p.points != null ? p.points + 600 : ELO_BASE)
 // puntos_rango = lo único que se muestra (MMR inicial 1000 = Bronce IV 0 LP)
@@ -64,7 +79,6 @@ const getGames = (p) => (p.wins ?? 0) + (p.losses ?? 0)
 const getLosses = (p) => p.losses ?? 0
 const getStreak = (p) => p.streak ?? 0
 const getPentas = (p) => p.pentakills ?? 0
-const FIRE_STREAK = 2 // racha mínima para mostrar fuego
 const isPlaced = (p) => getGames(p) >= MIN_GAMES
 const getWrOrNeg = (p) => {
   const t = getGames(p)
@@ -86,7 +100,7 @@ const SQL_PLAYERS = `create table if not exists players (
 alter table players enable row level security;
 drop policy if exists "demo" on players;
 create policy "demo" on players for all using (true) with check (true);
--- si tu tabla ya existe, corre esto para migrar a Elo (MMR oculto base 1000):
+-- si tu tabla ya existe, corre esto para migrar al sistema ranked:
 -- alter table players add column if not exists losses int default 0;
 -- alter table players add column if not exists points int default 0;
 -- alter table players add column if not exists streak int default 0;
@@ -483,22 +497,16 @@ function App() {
     }, 110)
   }
 
-  // Elo: cambio según promedio de cada equipo, igual para todo el equipo
+  // LP por racha: cada jugador gana/pierde según su propia racha actual
   const registerWin = async (winner) => {
     if (!requireAdmin()) return
     const winners = winner === 'A' ? teamA : teamB
     const losers = winner === 'A' ? teamB : teamA
     if (winners.length === 0) return
-    const avgW = winners.reduce((a, p) => a + getMmr(p), 0) / winners.length
-    const avgL = losers.length
-      ? losers.reduce((a, p) => a + getMmr(p), 0) / losers.length
-      : avgW
-    const expW = eloExpected(avgW, avgL)
-    const deltaW = rhalf(ELO_K * (1 - expW))
-    const deltaL = rhalf(ELO_K * (0 - (1 - expW)))
-    const mmrW = (p) => Math.max(0, getMmr(p) + deltaW)
-    const mmrL = (p) => Math.max(0, getMmr(p) + deltaL)
     setLastWinner(winner)
+    const deltas = {}
+    for (const p of winners) deltas[p.id] = lpForWin(getStreak(p))
+    for (const p of losers) deltas[p.id] = -lpForLoss(getStreak(p))
     const entry = {
       key: uid() + Date.now().toString(36),
       winner,
@@ -507,33 +515,40 @@ function App() {
       names: winners.map((p) => p.name),
       loserNames: losers.map((p) => p.name),
       prevStreaks: Object.fromEntries(allPlayers.map((p) => [p.id, getStreak(p)])),
-      deltaW,
-      deltaL,
+      deltas,
+      // legado para deshacer de historiales viejos (Elo de la versión anterior)
+      deltaW: winners.length ? Math.max(...winners.map((p) => deltas[p.id])) : LP_WIN,
+      deltaL: losers.length ? Math.min(...losers.map((p) => deltas[p.id])) : -LP_LOSS,
       at: new Date().toISOString(),
     }
+    const nextMmrOf = (p, d) => Math.max(0, getMmr(p) + d)
     const applyRanked = (list) =>
       list.map((p) => {
-        if (entry.ids.includes(p.id))
-          return { ...p, wins: (p.wins ?? 0) + 1, mmr: mmrW(p), points: mmrW(p) - 600, streak: getStreak(p) + 1 }
-        if (entry.loserIds.includes(p.id))
-          return { ...p, losses: getLosses(p) + 1, mmr: mmrL(p), points: mmrL(p) - 600, streak: 0 }
+        if (entry.ids.includes(p.id)) {
+          const m = nextMmrOf(p, deltas[p.id])
+          return { ...p, wins: (p.wins ?? 0) + 1, mmr: m, points: m - 600, streak: nextStreakOnWin(getStreak(p)) }
+        }
+        if (entry.loserIds.includes(p.id)) {
+          const m = nextMmrOf(p, deltas[p.id])
+          return { ...p, losses: getLosses(p) + 1, mmr: m, points: m - 600, streak: nextStreakOnLoss(getStreak(p)) }
+        }
         return p
       })
     if (isSupabaseConfigured) {
       for (const p of winners) {
-        const next = mmrW(p)
+        const next = nextMmrOf(p, deltas[p.id])
         const { error } = await safeUpdate(
           p.id,
-          { wins: (p.wins ?? 0) + 1, mmr: next, points: next - 600, streak: getStreak(p) + 1 },
+          { wins: (p.wins ?? 0) + 1, mmr: next, points: next - 600, streak: nextStreakOnWin(getStreak(p)) },
           { wins: (p.wins ?? 0) + 1 }
         )
         if (error && !isSchemaCacheError(error)) setStatus(error.message)
       }
       for (const p of losers) {
-        const next = mmrL(p)
+        const next = nextMmrOf(p, deltas[p.id])
         const { error } = await safeUpdate(
           p.id,
-          { losses: getLosses(p) + 1, mmr: next, points: next - 600, streak: 0 },
+          { losses: getLosses(p) + 1, mmr: next, points: next - 600, streak: nextStreakOnLoss(getStreak(p)) },
           {} // sin columnas ranked no hay nada que restar al perdedor
         )
         if (error && !isSchemaCacheError(error)) setStatus(error.message)
@@ -558,17 +573,21 @@ function App() {
     setWinHistory((prev) => [entry, ...prev].slice(0, 10))
   }
 
-  // deshace un registro erróneo: revierte el delta Elo exacto aplicado al registrar
+  // deshace un registro erróneo: revierte el delta exacto aplicado al registrar
   const undoWin = async (entry) => {
     if (!requireAdmin()) return
     const idSet = new Set(entry.ids)
     const loserSet = new Set(entry.loserIds ?? [])
     const prev = entry.prevStreaks ?? {}
     const restoreStreak = (p) => (prev[p.id] ?? Math.max(0, getStreak(p) - (idSet.has(p.id) ? 1 : 0)))
+    // delta por jugador guardado al registrar; historiales viejos usan deltaW/deltaL
+    const dOf = (p, fallback) => (entry.deltas?.[p.id] ?? fallback)
     const hasElo = entry.deltaW !== undefined && entry.deltaL !== undefined
+    const backMmr = (p, d) => Math.max(0, getMmr(p) - d)
     if (isSupabaseConfigured) {
       for (const p of allPlayers.filter((p) => idSet.has(p.id))) {
-        const nextMmr = hasElo ? Math.max(0, getMmr(p) - entry.deltaW) : Math.max(0, getPuntos(p) - 20) + 600
+        const fallback = hasElo ? entry.deltaW : 30
+        const nextMmr = backMmr(p, dOf(p, fallback))
         const { error } = await safeUpdate(
           p.id,
           { wins: Math.max(0, (p.wins ?? 0) - 1), mmr: nextMmr, points: nextMmr - 600, streak: restoreStreak(p) },
@@ -577,7 +596,8 @@ function App() {
         if (error && !isSchemaCacheError(error)) setStatus(error.message)
       }
       for (const p of allPlayers.filter((p) => loserSet.has(p.id))) {
-        const nextMmr = hasElo ? getMmr(p) - entry.deltaL : getPuntos(p) + 20 + 600
+        const fallback = hasElo ? entry.deltaL : -15
+        const nextMmr = backMmr(p, dOf(p, fallback))
         const { error } = await safeUpdate(
           p.id,
           { losses: Math.max(0, getLosses(p) - 1), mmr: nextMmr, points: nextMmr - 600, streak: restoreStreak(p) },
@@ -598,11 +618,13 @@ function App() {
     } else {
       const next = allPlayers.map((p) => {
         if (idSet.has(p.id)) {
-          const m = hasElo ? Math.max(0, getMmr(p) - entry.deltaW) : Math.max(0, getPuntos(p) - 20) + 600
+          const fallback = hasElo ? entry.deltaW : 30
+          const m = backMmr(p, dOf(p, fallback))
           return { ...p, wins: Math.max(0, (p.wins ?? 0) - 1), mmr: m, points: m - 600, streak: restoreStreak(p) }
         }
         if (loserSet.has(p.id)) {
-          const m = hasElo ? getMmr(p) - entry.deltaL : getPuntos(p) + 20 + 600
+          const fallback = hasElo ? entry.deltaL : -15
+          const m = backMmr(p, dOf(p, fallback))
           return { ...p, losses: Math.max(0, getLosses(p) - 1), mmr: m, points: m - 600, streak: restoreStreak(p) }
         }
         return p
@@ -695,13 +717,14 @@ function App() {
     const pe = getPentas(p)
     const total = w + l
     const wr = total ? Math.round((w / total) * 100) : 0
-    const onFire = st >= FIRE_STREAK
+    const onFire = st >= HOT_STREAK
+    const onCold = st <= -COLD_STREAK
     const posClass = !unplaced && i < 3 ? `pos-${i + 1}` : ''
     const tierClass = unplaced ? '' : `tier-${r.name.toLowerCase()}`
     return (
       <div
         key={p.id}
-        className={`m3-list-row rank-card rank-in ${tierClass} ${!unplaced && i === 0 ? 'top' : ''} ${onFire ? 'on-fire' : ''}`}
+        className={`m3-list-row rank-card rank-in ${tierClass} ${!unplaced && i === 0 ? 'top' : ''} ${onFire ? 'on-fire' : ''} ${onCold ? 'on-cold' : ''}`}
         style={{ animationDelay: `${Math.min(i, 10) * 0.05}s` }}
       >
         <span className={`m3-pos ${posClass}`} title={unplaced ? 'En colocación' : `Puesto ${posLabel}`}>{posLabel}</span>
@@ -737,9 +760,15 @@ function App() {
             p.name
           )}
           {onFire && (
-            <span className="m3-fire" title={`Racha de ${st} victorias`}>
+            <span className="m3-fire" title={`Racha de ${st} victorias • gana +${LP_WIN_HOT} LP`}>
               <span className="material-symbols-rounded">local_fire_department</span>
               x{st}
+            </span>
+          )}
+          {onCold && (
+            <span className="m3-cold" title={`Racha de ${-st} derrotas • pierde −${LP_LOSS_COLD} LP`}>
+              <span className="material-symbols-rounded">ac_unit</span>
+              x{-st}
             </span>
           )}
           {pe > 0 && (
@@ -880,8 +909,17 @@ function App() {
             <h2><span className="material-symbols-rounded">emoji_events</span> Cómo funciona el ranking</h2>
             <div className="m3-help-body">
               <h3>Tu puntaje secreto</h3>
-              <p>Todos empiezan con <b>400 puntos (Bronce IV - 0 LP)</b>. Ganar suma puntos y perder los quita: lo normal es moverse <b>unos 30-35 por partido</b>.</p>
-              <p>Si le ganas a un equipo más fuerte, subes más. Si pierdes contra uno más débil, bajas más.</p>
+              <p>Todos empiezan con <b>400 puntos (Bronce IV - 0 LP)</b>. Ganar suma puntos y perder los quita.</p>
+              <h3>Cuánto subes o bajas por partida</h3>
+              <table className="m3-help-table">
+                <thead><tr><th>Situación</th><th>Ganar</th><th>Perder</th></tr></thead>
+                <tbody>
+                  <tr><td>Normal (o tras romper una racha)</td><td className="w">+30</td><td className="l">−15</td></tr>
+                  <tr><td>Racha de 3+ victorias seguidas 🔥</td><td className="w">+35</td><td>−12 (solo la que rompe la racha)</td></tr>
+                  <tr><td>Racha de 3+ derrotas seguidas ❄️</td><td className="w">+30</td><td className="l">−20</td></tr>
+                </tbody>
+              </table>
+              <p>Si ganas <b>3 seguidas</b> empiezas a ganar más (+35) y perder cuesta menos (−12). Si pierdes tras una racha, vuelves al base: +30 / −15. Si caes en <b>3 derrotas seguidas</b> te castigan más (−20).</p>
               <h3>Lo que ves: rango y LP</h3>
               <p>Empiezas en <b>Bronce IV - 0 LP</b>. Cada división vale <b>100 LP</b> y cada nivel tiene 4 divisiones (de la IV a la I).</p>
               <table className="m3-help-table">
@@ -897,22 +935,23 @@ function App() {
                   <tr><td>Maestro</td><td>2800+</td><td>sin divisiones</td></tr>
                 </tbody>
               </table>
-              <h3>Por qué a veces dan más y a veces menos</h3>
-              <p>Si gana el equipo favorito, era lo esperado: <b>dan pocos puntos</b>. Si gana el que iba perdiendo, dio la sorpresa: <b>dan más puntos</b>. Lo mismo al revés: perder contra un rival débil quita más.</p>
+              <h3>Rachas: el fuego y el frío</h3>
+              <p>🔥 <b>3 victorias seguidas</b> = bonus: ganas +35 y perder solo cuesta −12 (la que rompe la racha). Después vuelves al base.</p>
+              <p>❄️ <b>3 derrotas seguidas</b> = castigo: pierdes −20. Con la primera victoria vuelves al base.</p>
               <h3>Equipos por partida</h3>
               <p>Quién jugó de cada lado, con el promedio del equipo y lo que subió o bajó cada uno:</p>
               <div className="m3-help-scroll">
               <table className="m3-help-table">
                 <thead><tr><th>#</th><th>Ganadores (prom.)</th><th>Perdedores (prom.)</th><th>Cambio</th></tr></thead>
                 <tbody>
-                  <tr><td>P1</td><td>Nata, Roxas, DJ, Poppa, Hanubi (400)</td><td>Neid, Junko, Blubby, Hanz, Mika (400)</td><td>+16 / −16</td></tr>
-                  <tr><td>P2</td><td>DJ, Hanubi, Neid, Blubby, Poppa (403)</td><td>Nata, Junko, Hanz, Mika, Roxas (397)</td><td>+16 / −16</td></tr>
-                  <tr><td>P3</td><td>Nata, Hanubi, Neid, Blubby, Junko (400)</td><td>Mika, Roxas, Hanz, DJ, Poppa (400)</td><td>+16 / −16</td></tr>
-                  <tr><td>P4</td><td>Hanubi, Blubby, DJ, Mika, Fairy (406)</td><td>Nata, Roxas, Hanz, Junko, Neid (390)</td><td>+15 / −15</td></tr>
-                  <tr><td>P5</td><td>Nata, Hanz, Junko, Neid, DJ (388)</td><td>Hanubi, Blubby, Mika, Fairy, Roxas (409)</td><td>+17 / −17</td></tr>
-                  <tr><td>P6</td><td>Blubby, Mika, Junko, DJ, Hanz (390)</td><td>Nata, Roxas, Neid, Hanubi, Fairy (406)</td><td>+17 / −17</td></tr>
-                  <tr><td>P7</td><td>Blubby, Junko, Roxas, Fairy, Neid (390)</td><td>Nata, Mika, DJ, Hanz, Hanubi (407)</td><td>+17 / −17</td></tr>
-                  <tr><td>P8</td><td>Junko, Roxas, Hanz, Mika, Hanubi (378)</td><td>Nata, DJ, Neid, Fairy, Blubby (419)</td><td>+18 / −18</td></tr>
+                  <tr><td>P1</td><td>Nata, Roxas, DJ, Poppa, Hanubi (400)</td><td>Neid, Junko, Blubby, Hanz, Mika (400)</td><td>+30 / −15</td></tr>
+                  <tr><td>P2</td><td>DJ, Hanubi, Neid, Blubby, Poppa (412)</td><td>Nata, Junko, Hanz, Mika, Roxas (403)</td><td>+30 / −12/−15</td></tr>
+                  <tr><td>P3</td><td>Nata, Hanubi, Neid, Blubby, Junko (416)</td><td>Mika, Roxas, Hanz, DJ, Poppa (416)</td><td>+30/+35 / −12/−15/−20</td></tr>
+                  <tr><td>P4</td><td>Hanubi, Blubby, DJ, Mika, Fairy (428)</td><td>Nata, Roxas, Hanz, Junko, Neid (409)</td><td>+30/+35 / −12/−20</td></tr>
+                  <tr><td>P5</td><td>Nata, Hanz, Junko, Neid, DJ (413)</td><td>Hanubi, Blubby, Mika, Fairy, Roxas (441)</td><td>+30 / −12/−20</td></tr>
+                  <tr><td>P6</td><td>Blubby, Mika, Junko, DJ, Hanz (424)</td><td>Nata, Roxas, Neid, Hanubi, Fairy (446)</td><td>+30/+35 / −12/−15/−20</td></tr>
+                  <tr><td>P7</td><td>Blubby, Junko, Roxas, Fairy, Neid (429)</td><td>Nata, Mika, DJ, Hanz, Hanubi (458)</td><td>+30/+35 / −12/−15/−20</td></tr>
+                  <tr><td>P8</td><td>Junko, Roxas, Hanz, Mika, Hanubi (421)</td><td>Nata, DJ, Neid, Fairy, Blubby (482)</td><td>+30/+35 / −12/−20</td></tr>
                 </tbody>
               </table>
               </div>
@@ -921,17 +960,17 @@ function App() {
               <table className="m3-help-table m3-matrix">
                 <thead><tr><th></th><th>Inicio</th><th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th><th>P7</th><th>P8</th><th>Total</th></tr></thead>
                 <tbody>
-                  <tr><td>Nataen</td><td className="start">400</td><td className="w">416</td><td className="l">400</td><td className="w">416</td><td className="l">401</td><td className="w">418</td><td className="l">401</td><td className="l">384</td><td className="l">366</td><td>3-5</td></tr>
-                  <tr><td>Roxas</td><td className="start">400</td><td className="w">416</td><td className="l">400</td><td className="l">384</td><td className="l">369</td><td className="l">352</td><td className="l">335</td><td className="w">352</td><td className="w">370</td><td>3-5</td></tr>
-                  <tr><td>DJuanchito</td><td className="start">400</td><td className="w">416</td><td className="w">432</td><td className="l">416</td><td className="w">431</td><td className="w">448</td><td className="w">465</td><td className="l">448</td><td className="l">430</td><td>5-3</td></tr>
-                  <tr><td>Poppa</td><td className="start">400</td><td className="w">416</td><td className="w">432</td><td className="l">416</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>2-1</td></tr>
-                  <tr><td>Hanubi</td><td className="start">400</td><td className="w">416</td><td className="w">432</td><td className="w">448</td><td className="w">463</td><td className="l">446</td><td className="l">429</td><td className="l">412</td><td className="w">430</td><td>5-3</td></tr>
-                  <tr><td>Neid</td><td className="start">400</td><td className="l">384</td><td className="w">400</td><td className="w">416</td><td className="l">401</td><td className="w">418</td><td className="l">401</td><td className="w">418</td><td className="l">400</td><td>4-4</td></tr>
-                  <tr><td>Junko</td><td className="start">400</td><td className="l">384</td><td className="l">368</td><td className="w">384</td><td className="l">369</td><td className="w">386</td><td className="w">403</td><td className="w">420</td><td className="w">438</td><td>5-3</td></tr>
-                  <tr><td>Blubby</td><td className="start">400</td><td className="l">384</td><td className="w">400</td><td className="w">416</td><td className="w">431</td><td className="l">414</td><td className="w">431</td><td className="w">448</td><td className="l">430</td><td>5-3</td></tr>
-                  <tr><td>Hanz</td><td className="start">400</td><td className="l">384</td><td className="l">368</td><td className="l">352</td><td className="l">337</td><td className="w">354</td><td className="w">371</td><td className="l">354</td><td className="w">372</td><td>3-5</td></tr>
-                  <tr><td>Mika</td><td className="start">400</td><td className="l">384</td><td className="l">368</td><td className="l">352</td><td className="w">367</td><td className="l">350</td><td className="w">367</td><td className="l">350</td><td className="w">368</td><td>3-5</td></tr>
-                  <tr><td>Fairy</td><td className="start">400</td><td>—</td><td>—</td><td>—</td><td className="w">415</td><td className="l">398</td><td className="l">381</td><td className="w">398</td><td className="l">380</td><td>2-3</td></tr>
+                  <tr><td>Nataen</td><td className="start">400</td><td className="w">430</td><td className="l">418</td><td className="w">448</td><td className="l">436</td><td className="w">466</td><td className="l">454</td><td className="l">439</td><td className="l">419</td><td>3-5</td></tr>
+                  <tr><td>Roxas</td><td className="start">400</td><td className="w">430</td><td className="l">418</td><td className="l">403</td><td className="l">383</td><td className="l">363</td><td className="l">343</td><td className="w">373</td><td className="w">403</td><td>3-5</td></tr>
+                  <tr><td>DJuanchito</td><td className="start">400</td><td className="w">430</td><td className="w">460</td><td className="l">448</td><td className="w">478</td><td className="w">508</td><td className="w">543</td><td className="l">531</td><td className="l">516</td><td>5-3</td></tr>
+                  <tr><td>Poppa</td><td className="start">400</td><td className="w">430</td><td className="w">460</td><td className="l">448</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>2-1</td></tr>
+                  <tr><td>Hanubi</td><td className="start">400</td><td className="w">430</td><td className="w">460</td><td className="w">495</td><td className="w">530</td><td className="l">518</td><td className="l">503</td><td className="l">483</td><td className="w">513</td><td>5-3</td></tr>
+                  <tr><td>Neid</td><td className="start">400</td><td className="l">385</td><td className="w">415</td><td className="w">445</td><td className="l">433</td><td className="w">463</td><td className="l">451</td><td className="w">481</td><td className="l">469</td><td>4-4</td></tr>
+                  <tr><td>Junko</td><td className="start">400</td><td className="l">385</td><td className="l">370</td><td className="w">400</td><td className="l">388</td><td className="w">418</td><td className="w">448</td><td className="w">483</td><td className="w">518</td><td>5-3</td></tr>
+                  <tr><td>Blubby</td><td className="start">400</td><td className="l">385</td><td className="w">415</td><td className="w">445</td><td className="w">480</td><td className="l">468</td><td className="w">498</td><td className="w">528</td><td className="l">516</td><td>5-3</td></tr>
+                  <tr><td>Hanz</td><td className="start">400</td><td className="l">385</td><td className="l">370</td><td className="l">350</td><td className="l">330</td><td className="w">360</td><td className="w">390</td><td className="l">378</td><td className="w">408</td><td>3-5</td></tr>
+                  <tr><td>Mika</td><td className="start">400</td><td className="l">385</td><td className="l">370</td><td className="l">350</td><td className="w">380</td><td className="l">368</td><td className="w">398</td><td className="l">386</td><td className="w">416</td><td>3-5</td></tr>
+                  <tr><td>Fairy</td><td className="start">400</td><td>—</td><td>—</td><td>—</td><td className="w">430</td><td className="l">418</td><td className="l">403</td><td className="w">433</td><td className="l">421</td><td>2-3</td></tr>
                   <tr><td>Sanns</td><td className="start">400</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0-0</td></tr>
                 </tbody>
               </table>
@@ -1115,8 +1154,20 @@ function App() {
             <span className="material-symbols-rounded">celebration</span>
             <div style={{ flex: 1 }}>
               <b>¡Ganó el Equipo {lastWinner}!</b><br />
-              +{winHistory[0].deltaW ?? WIN_PTS} LP para: {(lastWinner === 'A' ? teamA : teamB).map((p) => p.name).join(', ')}<br />
-              {winHistory[0].deltaL ?? -LOSS_PTS} LP para: {(lastWinner === 'A' ? teamB : teamA).map((p) => p.name).join(', ') || '—'}
+              {(() => {
+                const fmt = (arr, fallback) => {
+                  const vals = [...new Set(arr.map((p) => winHistory[0].deltas?.[p.id] ?? fallback))]
+                  return vals.map((v) => `${v > 0 ? '+' : ''}${v}`).join('/')
+                }
+                const winners = lastWinner === 'A' ? teamA : teamB
+                const losers = lastWinner === 'A' ? teamB : teamA
+                return (
+                  <>
+                    {fmt(winners, LP_WIN)} LP para: {winners.map((p) => p.name).join(', ')}<br />
+                    {fmt(losers, -LP_LOSS)} LP para: {losers.map((p) => p.name).join(', ') || '—'}
+                  </>
+                )
+              })()}
             </div>
             {isAdmin && (
               <button onClick={() => undoWin(winHistory[0])} className="m3-btn m3-btn-outlined" style={{ height: 40 }} title="Deshacer este registro">
@@ -1134,7 +1185,9 @@ function App() {
                 <div key={h.key} className="m3-list-row">
                   <span className="material-symbols-rounded">history</span>
                   <span className="m3-list-name">
-                    Equipo {h.winner} +{h.deltaW ?? WIN_PTS}/−{-(h.deltaL ?? -LOSS_PTS)} ({h.names.join(', ')})
+                    Equipo {h.winner} {h.deltas
+                      ? [...new Set(h.ids.map((id) => h.deltas[id]))].map((v) => `${v > 0 ? '+' : ''}${v}`).join('/')
+                      : `+${h.deltaW ?? WIN_PTS}/−${-(h.deltaL ?? -LOSS_PTS)}`} ({h.names.join(', ')})
                   </span>
                   <button
                     onClick={() => undoWin(h)}
@@ -1169,7 +1222,7 @@ function App() {
             </button>
           )}
         </div>
-        <p className="m3-support">Se conserva aunque salgan del partido. Sistema Elo: el cambio depende del nivel de cada equipo. Solo admin puede borrar definitivo.</p>
+        <p className="m3-support">Se conserva aunque salgan del partido. Gana +30, pierde −15 (rachas: +35 / −12 / −20). Solo admin puede borrar definitivo.</p>
         {ranking.length === 0 && placement.length === 0 ? (
           <p className="m3-muted">Sin datos aún.</p>
         ) : (
