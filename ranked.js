@@ -1,9 +1,9 @@
-// Sistema ranked con LP por racha (5 tiers × 200pts, Maestro en 1000):
-// base gana +40 / pierde −20; racha 3+ victorias → gana +50 y perder esa cuesta −15;
-// racha 3+ derrotas → pierde −25; piso 0. Agrega partidas a GAMES y corre: node ranked.js
-const BASE = 200, WIN = 40, WIN_HOT = 50, LOSS = 20, LOSS_MERCY = 15, LOSS_COLD = 25;
+// Sistema ranked con LP por racha (mismas reglas que la app):
+// base gana +30 / pierde −15; racha 3+ victorias → gana +35 y perder esa cuesta −12;
+// racha 3+ derrotas → pierde −20; piso 0. Agrega partidas a GAMES y corre: node ranked.js
+const BASE = 400, WIN = 30, WIN_HOT = 35, LOSS = 15, LOSS_MERCY = 12, LOSS_COLD = 20;
 const HOT = 3, COLD = 3, MIN_GAMES = 5;
-const TIERS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Diamante'];
+const TIERS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Esmeralda', 'Diamante'];
 
 const GAMES = [
   { w: ['nataen', 'roxas', 'djuanchito', 'poppa', 'hanubi'], l: ['neid', 'junko', 'blubby', 'hanz', 'mika'] },
@@ -19,17 +19,16 @@ const EXTRA = ['sanns']; // jugadores sin partidas registradas
 const NAMES = { nataen: 'Nataen', roxas: 'Roxas', djuanchito: 'DJuanchito', poppa: 'Poppa', hanubi: 'Hanubi', neid: 'Neid', junko: 'Junko', blubby: 'Blubby', hanz: 'Hanz', mika: 'Mika', fairy: 'Fairy', sanns: 'Sanns' };
 
 function rankOf(p) {
-  if (p >= 1000) return 'Maestro';
-  const idx = Math.min(Math.floor(p / 200), TIERS.length - 1);
-  const tier = TIERS[idx];
-  const div = ['IV', 'III', 'II', 'I'][Math.floor((p % 200) / 50)];
-  return `${tier} ${div} - ${p % 50} LP`;
+  if (p >= 2800) return 'Maestro';
+  const tier = TIERS[Math.floor(p / 400)];
+  const div = ['IV', 'III', 'II', 'I'][Math.floor((p % 400) / 100)];
+  return `${tier} ${div} - ${p % 100} LP`;
 }
 // mismos helpers que la app (src/App.jsx)
 const nextStreakOnWin = (s) => (s > 0 ? s + 1 : 1);
 const nextStreakOnLoss = (s) => (s < 0 ? s - 1 : -1);
 const lpForWin = (s) => (nextStreakOnWin(s) >= HOT ? WIN_HOT : WIN);
-const lpForLoss = (s) => (s >= HOT ? LOSS_MERCY : Math.abs(nextStreakOnLoss(s)) >= COLD ? LOSS_COLD : LOSS);
+const lpForLoss = (s) => (s > 0 ? LOSS_MERCY : Math.abs(nextStreakOnLoss(s)) >= COLD ? LOSS_COLD : LOSS);
 
 const st = {};
 const all = new Set([...GAMES.flatMap((g) => [...g.w, ...g.l]), ...EXTRA]);
@@ -56,7 +55,7 @@ const tw = rows.reduce((a, r) => a + r.wins, 0), tl = rows.reduce((a, r) => a + 
 const badGames = rows.filter((r) => r.wins + r.losses !== r.games);
 const badDeltas = rows.filter((r) => r.hist.some((h) => {
   const d = parseInt(h.split(':')[1]);
-  return r.hist.includes(h) && Math.abs(d) !== 15 && Math.abs(d) !== 20 && Math.abs(d) !== 25 && Math.abs(d) !== 40 && Math.abs(d) !== 50;
+  return r.hist.includes(h) && Math.abs(d) !== 12 && Math.abs(d) !== 15 && Math.abs(d) !== 20 && Math.abs(d) !== 30 && Math.abs(d) !== 35;
 }));
 const hotWins = rows.reduce((a, r) => a + r.hist.filter((h) => h.includes(':+35')).length, 0);
 const mercyLosses = rows.reduce((a, r) => a + r.hist.filter((h) => h.includes(':-12')).length, 0);

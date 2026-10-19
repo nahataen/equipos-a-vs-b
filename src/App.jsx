@@ -33,45 +33,44 @@ const shuffle = (arr) => {
   return a
 }
 
-// LP por racha (esté estilo LoL simplificado):
-// base: gana +40 / pierde −20. Racha de 3+ victorias seguidas: gana +50.
-// Perder con racha de 3+ victorias (rompe la racha): solo −15.
-// Racha de 3+ derrotas seguidas: −25 (castigo). Tras romper racha vuelve el base.
-const LP_WIN = 40
-const LP_WIN_HOT = 50
-const LP_LOSS = 20
-const LP_LOSS_MERCY = 15
-const LP_LOSS_COLD = 25
+// LP por racha (estilo LoL simplificado):
+// base: gana +30 / pierde −15. Racha de 3+ victorias seguidas: gana +35.
+// Perder con racha de victorias activa (rompe la racha): solo −12.
+// Racha de 3+ derrotas seguidas: −20 (castigo). Tras romper racha vuelve el base.
+const LP_WIN = 30
+const LP_WIN_HOT = 35
+const LP_LOSS = 15
+const LP_LOSS_MERCY = 12
+const LP_LOSS_COLD = 20
 const HOT_STREAK = 3
 const COLD_STREAK = 3
 const nextStreakOnWin = (s) => (s > 0 ? s + 1 : 1)
 const nextStreakOnLoss = (s) => (s < 0 ? s - 1 : -1)
 const lpForWin = (streakBefore) => (nextStreakOnWin(streakBefore) >= HOT_STREAK ? LP_WIN_HOT : LP_WIN)
 const lpForLoss = (streakBefore) =>
-  streakBefore >= HOT_STREAK
+  streakBefore > 0
     ? LP_LOSS_MERCY
     : Math.abs(nextStreakOnLoss(streakBefore)) >= COLD_STREAK
       ? LP_LOSS_COLD
       : LP_LOSS
 const MIN_GAMES = 5 // menos de esto = en colocación (fuera del ladder)
 // legado: solo como respaldo para historiales viejos sin deltas guardados
-const WIN_PTS = 40
-const LOSS_PTS = 20
-const ELO_BASE = 800
+const WIN_PTS = 30
+const LOSS_PTS = 15
+const ELO_BASE = 1000
 // MMR del jugador; si falta la columna se aproxima desde puntos legacy (base 0 -> escala 600)
 const getMmr = (p) => p.mmr ?? (p.points != null ? p.points + 600 : ELO_BASE)
-// puntos_rango = lo único que se muestra (MMR inicial 800 = Bronce IV 0 LP)
+// puntos_rango = lo único que se muestra (MMR inicial 1000 = Bronce IV 0 LP)
 const getPuntos = (p) => getMmr(p) - 600
 
-// 5 tiers × 200pts c/u (divisiones de 50LP). Maestro desde 1000pts.
-const ELO_TIERS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Diamante']
+// Divisiones de 100 LP (0-99), 4 por tier (400 pts). Maestro desde 2800.
+const ELO_TIERS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Esmeralda', 'Diamante']
 const getRank = (puntos) => {
-  if (puntos >= 1000) return { name: 'Maestro', div: null, lp: null }
-  const idx = Math.min(Math.floor(puntos / 200), ELO_TIERS.length - 1)
+  if (puntos >= 2800) return { name: 'Maestro', div: null, lp: null }
   return {
-    name: ELO_TIERS[idx],
-    div: ['IV', 'III', 'II', 'I'][Math.floor((puntos % 200) / 50)],
-    lp: puntos % 50,
+    name: ELO_TIERS[Math.floor(puntos / 400)],
+    div: ['IV', 'III', 'II', 'I'][Math.floor((puntos % 400) / 100)],
+    lp: puntos % 100,
   }
 }
 const rankLabel = (r) => (r.lp === null || r.lp === undefined ? r.name : `${r.name} ${r.div} - ${r.lp} LP`)
@@ -362,7 +361,7 @@ function App() {
       return
     }
     if (isSupabaseConfigured) {
-      const rankedPayload = { name: clean, wins: 0, losses: 0, points: 200, streak: 0, pentakills: 0, mmr: 800 }
+      const rankedPayload = { name: clean, wins: 0, losses: 0, points: 400, streak: 0, pentakills: 0, mmr: 1000 }
       let { data, error } = await supabase.from('players').insert(rankedPayload).select()
       if (error && isSchemaCacheError(error)) {
         // tabla sin migrar a ranked: reintenta con columnas básicas
@@ -388,7 +387,7 @@ function App() {
         setActiveIds((prev) => [...prev, data[0].id])
       }
     } else {
-      const np = { id: uid(), name: clean, wins: 0, losses: 0, points: 200, streak: 0, pentakills: 0, mmr: 800 }
+      const np = { id: uid(), name: clean, wins: 0, losses: 0, points: 400, streak: 0, pentakills: 0, mmr: 1000 }
       setAllPlayers((prev) => [...prev, np])
       setActiveIds((prev) => [...prev, np.id])
     }
@@ -910,33 +909,35 @@ function App() {
             <h2><span className="material-symbols-rounded">emoji_events</span> Cómo funciona el ranking</h2>
             <div className="m3-help-body">
               <h3>Tu puntaje secreto</h3>
-              <p>Todos empiezan en <b>Bronce IV - 0 LP</b>. Ganar suma LP y perder los quita. Con 5+ partidas entras al ladder oficial.</p>
+              <p>Todos empiezan con <b>400 puntos (Bronce IV - 0 LP)</b>. Ganar suma puntos y perder los quita.</p>
               <h3>Cuánto subes o bajas por partida</h3>
               <table className="m3-help-table">
                 <thead><tr><th>Situación</th><th>Ganar</th><th>Perder</th></tr></thead>
                 <tbody>
-                  <tr><td>Normal (o tras romper una racha)</td><td className="w">+40</td><td className="l">−20</td></tr>
-                  <tr><td>Racha de 3+ victorias seguidas 🔥</td><td className="w">+50</td><td>−15 (solo la que rompe la racha)</td></tr>
-                  <tr><td>Racha de 3+ derrotas seguidas ❄️</td><td className="w">+40</td><td className="l">−25</td></tr>
+                  <tr><td>Normal (o tras romper una racha)</td><td className="w">+30</td><td className="l">−15</td></tr>
+                  <tr><td>Racha de 3+ victorias seguidas 🔥</td><td className="w">+35</td><td>−12 (solo la que rompe la racha)</td></tr>
+                  <tr><td>Racha de 3+ derrotas seguidas ❄️</td><td className="w">+30</td><td className="l">−20</td></tr>
                 </tbody>
               </table>
-              <p>Si ganas <b>3 seguidas</b> empiezas a ganar más (+50) y perder cuesta menos (−15). Si pierdes tras la racha, vuelves al base: +40 / −20. Si caes en <b>3 derrotas seguidas</b> te castigan más (−25).</p>
+              <p>Si ganas <b>3 seguidas</b> empiezas a ganar más (+35) y perder cuesta menos (−12). Si pierdes tras una racha, vuelves al base: +30 / −15. Si caes en <b>3 derrotas seguidas</b> te castigan más (−20).</p>
               <h3>Lo que ves: rango y LP</h3>
-              <p>Empiezas en <b>Bronce IV - 0 LP</b>. Cada división vale <b>50 LP</b> y cada tier tiene 4 divisiones (de la IV a la I).</p>
+              <p>Empiezas en <b>Bronce IV - 0 LP</b>. Cada división vale <b>100 LP</b> y cada nivel tiene 4 divisiones (de la IV a la I).</p>
               <table className="m3-help-table">
                 <thead><tr><th>Tier</th><th>Puntos</th><th>Divisiones</th></tr></thead>
                 <tbody>
-                  <tr><td>Hierro</td><td>0 – 199</td><td>IV III II I (50LP c/u)</td></tr>
-                  <tr><td>Bronce</td><td>200 – 399</td><td>IV III II I (50LP c/u)</td></tr>
-                  <tr><td>Plata</td><td>400 – 599</td><td>IV III II I (50LP c/u)</td></tr>
-                  <tr><td>Oro</td><td>600 – 799</td><td>IV III II I (50LP c/u)</td></tr>
-                  <tr><td>Diamante</td><td>800 – 999</td><td>IV III II I (50LP c/u)</td></tr>
-                  <tr><td>Maestro</td><td>1000+</td><td>sin divisiones</td></tr>
+                  <tr><td>Hierro</td><td>0 – 399</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Bronce</td><td>400 – 799</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Plata</td><td>800 – 1199</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Oro</td><td>1200 – 1599</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Platino</td><td>1600 – 1999</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Esmeralda</td><td>2000 – 2399</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Diamante</td><td>2400 – 2799</td><td>IV, III, II, I</td></tr>
+                  <tr><td>Maestro</td><td>2800+</td><td>sin divisiones</td></tr>
                 </tbody>
               </table>
               <h3>Rachas: el fuego y el frío</h3>
-              <p>🔥 <b>3 victorias seguidas</b> = bonus: ganas +50 y perder solo cuesta −15 (la que rompe la racha). Después vuelves al base.</p>
-              <p>❄️ <b>3 derrotas seguidas</b> = castigo: pierdes −25. Con la primera victoria vuelves al base.</p>
+              <p>🔥 <b>3 victorias seguidas</b> = bonus: ganas +35 y perder solo cuesta −12 (la que rompe la racha). Después vuelves al base.</p>
+              <p>❄️ <b>3 derrotas seguidas</b> = castigo: pierdes −20. Con la primera victoria vuelves al base.</p>
               <h3>Equipos por partida</h3>
               <p>Quién jugó de cada lado, con el promedio del equipo y lo que subió o bajó cada uno:</p>
               <div className="m3-help-scroll">
@@ -1221,7 +1222,7 @@ function App() {
             </button>
           )}
         </div>
-        <p className="m3-support">Se conserva aunque salgan del partido. Gana +40, pierde −20 (rachas: +50 / −15 / −25). Solo admin puede borrar definitivo.</p>
+        <p className="m3-support">Se conserva aunque salgan del partido. Gana +30, pierde −15 (rachas: +35 / −12 / −20). Solo admin puede borrar definitivo.</p>
         {ranking.length === 0 && placement.length === 0 ? (
           <p className="m3-muted">Sin datos aún.</p>
         ) : (
