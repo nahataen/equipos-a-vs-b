@@ -411,10 +411,22 @@ function App() {
     setActiveIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
   }
 
-  // borrado DEFINITIVO del ranking (solo admin, con confirm)
-  const deleteFromRanking = async (id, playerName) => {
+  // borrado DEFINITIVO del ranking (solo admin, con validación fuerte)
+  // Con historial hay que escribir el nombre exacto: un clic equivocado
+  // borraría meses de ranking y no se puede deshacer.
+  const deleteFromRanking = async (id, playerName, wins = 0, losses = 0) => {
     if (!requireAdmin()) return
-    if (!window.confirm(`¿Borrar a "${playerName}" del ranking para siempre? Sus wins se pierden.`)) return
+    const hasHistory = wins + losses > 0
+    if (hasHistory) {
+      const typed = window.prompt(
+        `⚠️ "${playerName}" tiene historial (${wins}W-${losses}L) y no se puede deshacer.\nEscribe su nombre exacto para borrar:`
+      )
+      if (typed === null) return // cancelado
+      if (typed.trim() !== playerName) {
+        setStatus(`Borrado cancelado: el nombre no coincide ("${playerName}").`)
+        return
+      }
+    } else if (!window.confirm(`¿Borrar a "${playerName}" del ranking? (sin partidas jugadas)`)) return
     if (isSupabaseConfigured) {
       const { error } = await supabase.from('players').delete().eq('id', id)
       if (error) {
@@ -800,7 +812,7 @@ function App() {
               <button onClick={() => bumpPenta(p, 1)} aria-label={`sumar pentakill a ${p.name}`}>+</button>
             </span>
             <button
-              onClick={() => deleteFromRanking(p.id, p.name)}
+              onClick={() => deleteFromRanking(p.id, p.name, w, l)}
               className="m3-btn m3-btn-outlined"
               style={{ height: 36, padding: '0 12px' }}
               title="Borrar definitivo del ranking"
@@ -1222,7 +1234,7 @@ function App() {
             </button>
           )}
         </div>
-        <p className="m3-support">Se conserva aunque salgan del partido. Gana +30, pierde −15 (rachas: +35 / −12 / −20). Solo admin puede borrar definitivo.</p>
+        <p className="m3-support">Se conserva aunque salgan del partido. Gana +30, pierde −15 (rachas: +35 / −12 / −20). Solo admin puede borrar definitivo, y si el jugador tiene partidas hay que escribir su nombre para confirmar.</p>
         {ranking.length === 0 && placement.length === 0 ? (
           <p className="m3-muted">Sin datos aún.</p>
         ) : (
