@@ -48,7 +48,7 @@
     backdrop-filter: blur(12px);
   }
 }
-.m3-topbar .material-symbols-rounded { color: var(--md-sys-color-primary); font-size: 30px; }
+.m3-topbar .material-symbols-rounded { color: var(--accent-bright); font-size: 30px; }
 .m3-topbar h1 {
   font-size: 24px;
   line-height: 30px;
@@ -94,7 +94,7 @@
   margin-bottom: 4px;
 }
 .m3-card-head .material-symbols-rounded {
-  color: var(--md-sys-color-primary);
+  color: var(--accent-bright);
   font-size: 24px;
 }
 .m3-card-head h2 {
@@ -124,7 +124,7 @@
 }
 .m3-field input {
   width: 100%;
-  height: 60px;
+  height: 56px;
   border-radius: 0;
   border: 3px solid #000;
   background: var(--md-sys-color-surface-container-lowest);
@@ -134,7 +134,9 @@
   color: var(--md-sys-color-on-surface);
   outline: none;
 }
-.m3-field input:focus { border-color: var(--md-sys-color-primary); }
+.m3-field input:focus { border-color: var(--accent-bright); }
+/* input y botón del alta: misma altura, alineados */
+.m3-input-row .m3-btn { height: 56px; }
 
 .m3-btn {
   display: inline-flex;
@@ -192,7 +194,7 @@
   font-size: 15px;
   font-weight: 600;
 }
-.m3-chip .trophy { color: var(--md-sys-color-primary); font-size: 14px; }
+.m3-chip .trophy { color: var(--accent-bright); font-size: 14px; }
 .m3-chip button {
   width: 24px; height: 24px;
   border-radius: 0;
@@ -217,8 +219,8 @@
   min-width: 0;
   border: 3px solid #000;
 }
-.m3-team.a { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
-.m3-team.b { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+.m3-team.a { background: #0055ff; color: #ffffff; }
+.m3-team.b { background: #e63b2e; color: #ffffff; }
 .m3-team h3 { margin: 0 0 10px; font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
 .m3-player {
   background: var(--md-sys-color-surface-container-lowest);
@@ -234,7 +236,7 @@
   gap: 8px;
   box-shadow: var(--md-elev-1);
 }
-.m3-player .material-symbols-rounded { font-size: 18px; color: var(--md-sys-color-primary); }
+.m3-player .material-symbols-rounded { font-size: 18px; color: var(--accent-bright); }
 .m3-player-avatar {
   width: 24px; height: 24px; border-radius: 0;
   object-fit: cover; border: 2px solid #000;
@@ -335,7 +337,7 @@
   color: var(--md-sys-color-on-surface);
   cursor: pointer; text-align: left;
 }
-.m3-name-btn:hover { color: var(--md-sys-color-primary); text-decoration: underline; }
+.m3-name-btn:hover { color: var(--accent-bright); text-decoration: underline; }
 
 /* Vista previa de foto para visitantes (solo lectura) */
 .m3-lightbox {
@@ -364,8 +366,8 @@
 /* Modal de ayuda: más ancho, con scroll y tabla de rangos */
 .m3-help-card { max-width: min(94vw, 560px); max-height: 86vh; overflow-y: auto; text-align: left; }
 .m3-help-card h2 { display: flex; align-items: center; gap: 8px; font-size: 20px; margin: 0 0 8px; }
-.m3-help-card h2 .material-symbols-rounded { font-size: 26px; color: var(--md-sys-color-primary); }
-.m3-help-body h3 { font-size: 15px; margin: 14px 0 4px; color: var(--md-sys-color-primary); text-transform: uppercase; letter-spacing: .03em; }
+.m3-help-card h2 .material-symbols-rounded { font-size: 26px; color: var(--accent-bright); }
+.m3-help-body h3 { font-size: 15px; margin: 14px 0 4px; color: var(--accent-bright); text-transform: uppercase; letter-spacing: .03em; }
 .m3-help-body p { font-size: 14px; font-weight: 400; margin: 4px 0; }
 .m3-help-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
 .m3-help-table th, .m3-help-table td { padding: 6px 8px; border-bottom: 1px solid var(--md-sys-color-outline-variant); text-align: left; }
@@ -408,7 +410,7 @@
 .m3-list-row.rank-card:hover { background: var(--md-sys-color-surface-container); transform: translate(1px, 1px); box-shadow: 3px 3px 0 #000; }
 .m3-list-row.rank-card.top {
   background: var(--md-sys-color-surface-container);
-  border-color: #ffcc00;
+  border-color: var(--accent-bright);
   box-shadow: var(--md-elev-2);
 }
 /* Color de tarjeta según el tier (Bronce, Plata, Oro...) — fondos planos */
@@ -437,8 +439,8 @@
   color: var(--md-sys-color-on-surface-variant);
   font-weight: 700; font-size: 14px;
 }
-.m3-pos.pos-1 { background: #ffcc00; color: #16130a; }
-.m3-pos.pos-2 { background: #d7d2c8; color: #16130a; }
+.m3-pos.pos-1 { background: #f5f0e8; color: #16130a; }
+.m3-pos.pos-2 { background: #9aa4b2; color: #16130a; }
 .m3-pos.pos-3 { background: #cd7f32; color: #16130a; }
 /* nombre + rango + stats en columna */
 .m3-list-row.rank-card .m3-list-name {
@@ -447,7 +449,7 @@
 }
 .m3-rank-line {
   font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-  color: var(--md-sys-color-primary);
+  color: var(--accent-bright);
 }
 .m3-stats { display: flex; flex-wrap: wrap; gap: 6px; }
 .stat {
@@ -558,7 +560,7 @@
 .m3-penta-stepper { display: inline-flex; border: 2px solid #000; border-radius: 0; overflow: hidden; flex-shrink: 0; }
 .m3-penta-stepper button {
   border: none; background: transparent; cursor: pointer;
-  color: var(--md-sys-color-primary); font-size: 16px; font-weight: 700;
+  color: var(--accent-bright); font-size: 16px; font-weight: 700;
   width: 30px; height: 36px;
 }
 .m3-penta-stepper button:hover { background: var(--md-sys-color-secondary-container); color: #16130a; }

@@ -4,9 +4,9 @@
   color-scheme: dark;
 
   /* Bauhaus: negro + amarillo + rojo + azul, sobre fondo oscuro */
-  --md-sys-color-primary: #ffcc00;
-  --md-sys-color-on-primary: #16130a;
-  --md-sys-color-primary-container: #ffcc00;
+  --md-sys-color-primary: #0055ff;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #f5f0e8;
   --md-sys-color-on-primary-container: #16130a;
   --md-sys-color-secondary: #f5f0e8;
   --md-sys-color-on-secondary: #16130a;
@@ -32,7 +32,10 @@
   --md-sys-color-outline-variant: #443f39;
   --md-sys-color-inverse-surface: #e8e2d6;
   --md-sys-color-inverse-on-surface: #1d1b19;
-  --md-sys-color-inverse-primary: #ffcc00;
+  --md-sys-color-inverse-primary: #5b8cff;
+
+  /* Acento brillante (azul legible sobre fondo oscuro) */
+  --accent-bright: #5b8cff;
   --md-sys-color-scrim: rgba(0, 0, 0, .6);
 
   /* Elevación = bloque sólido offset (sin blur) */
