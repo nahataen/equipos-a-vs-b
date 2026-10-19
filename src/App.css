@@ -210,7 +210,13 @@
 
 /* Teams */
 .m3-fab-row { display: flex; gap: 12px; align-items: center; }
-.m3-fab-row .m3-btn { flex: 1; height: 56px; font-size: 14px; }
+/* Los dos botones van lado a lado: menos padding y fuente para que quepan
+   en la columna (~260px c/u); si falta sitio, el texto trunca con "…" */
+.m3-fab-row .m3-btn {
+  flex: 1; min-width: 0; height: 56px;
+  padding: 0 14px; font-size: 13px; letter-spacing: .02em;
+  overflow: hidden; text-overflow: ellipsis;
+}
 .m3-teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch; margin-top: 16px; min-width: 0; }
 .m3-team {
   border-radius: 0;
