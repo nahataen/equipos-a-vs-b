@@ -60,6 +60,10 @@
 
 html, body { margin: 0; padding: 0; }
 
+/* Reset de caja: sin esto, input (width:100% + padding + borde) desborda
+   su flex-item y se monta sobre el botón del lado. */
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
   background: var(--md-sys-color-surface);
   color: var(--md-sys-color-on-surface);
