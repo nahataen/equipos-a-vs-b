@@ -1,3 +1,7 @@
+/* ===== Neo-brutalismo oscuro (Bauhaus) =====
+   Mismos selectores/que el M3 original: solo cambian bordes, sombras,
+   esquinas y tipografía. La lógica (JSX) no se toca. */
+
 /* ===== M3 layout ===== */
 .m3-page {
   max-width: 1200px;
@@ -33,55 +37,51 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  padding: 12px 4px;
-  background: var(--md-sys-color-surface);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  padding: 12px 8px;
+  background: var(--md-sys-color-surface-container-low);
+  border-bottom: 3px solid #000;
 }
 @supports (background: color-mix(in srgb, red 50%, blue)) {
   .m3-topbar {
-    background: color-mix(in srgb, var(--md-sys-color-surface) 85%, transparent);
+    background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 92%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
   }
 }
-.m3-topbar > div { min-width: 0; }
-.m3-topbar-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--md-shape-l);
-  background: var(--md-sys-color-primary-container);
-  color: var(--md-sys-color-on-primary-container);
-  display: grid;
-  place-items: center;
-}
-.m3-topbar-icon .material-symbols-rounded { font-size: 26px; }
+.m3-topbar .material-symbols-rounded { color: var(--md-sys-color-primary); font-size: 30px; }
 .m3-topbar h1 {
-  font-size: 26px;
-  line-height: 32px;
-  font-weight: 500;
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 700;
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: .01em;
   color: var(--md-sys-color-on-surface);
 }
 .m3-topbar p {
   margin: 0;
   font-size: 13px;
+  font-weight: 500;
   color: var(--md-sys-color-on-surface-variant);
 }
 .m3-mode-badge {
   margin-left: auto;
   background: var(--md-sys-color-secondary-container);
   color: var(--md-sys-color-on-secondary-container);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
   padding: 8px 16px;
-  border-radius: 999px;
+  border: 2px solid #000;
   white-space: nowrap;
 }
 
 /* Cards */
 .m3-card {
   background: var(--md-sys-color-surface-container-low);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-shape-xl);
+  border: 3px solid #000;
+  border-radius: 0;
   padding: 24px;
   margin-top: 16px;
   box-shadow: var(--md-elev-1);
@@ -99,16 +99,18 @@
 }
 .m3-card-head h2 {
   font-size: 19px;
-  font-weight: 500;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .02em;
   margin: 0;
   flex: 1;
 }
 .m3-count {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
   background: var(--md-sys-color-surface-container-highest);
+  border: 2px solid #000;
   padding: 4px 12px;
-  border-radius: 999px;
 }
 .m3-support { font-size: 15px; color: var(--md-sys-color-on-surface-variant); margin: 4px 0 12px; }
 
@@ -123,16 +125,16 @@
 .m3-field input {
   width: 100%;
   height: 60px;
-  border-radius: var(--md-shape-m);
-  border: 1px solid var(--md-sys-color-outline);
-  background: transparent;
+  border-radius: 0;
+  border: 3px solid #000;
+  background: var(--md-sys-color-surface-container-lowest);
   padding: 0 16px 0 44px;
   font-size: 17px;
   font-family: inherit;
   color: var(--md-sys-color-on-surface);
   outline: none;
 }
-.m3-field input:focus { border: 2px solid var(--md-sys-color-primary); padding-left: 43px; }
+.m3-field input:focus { border-color: var(--md-sys-color-primary); }
 
 .m3-btn {
   display: inline-flex;
@@ -141,21 +143,40 @@
   gap: 8px;
   height: 52px;
   padding: 0 26px;
-  border-radius: 999px;
-  font-size: 15px;
-  font-weight: 500;
+  border-radius: 0;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
   font-family: inherit;
-  border: none;
+  border: 3px solid #000;
   cursor: pointer;
-  transition: box-shadow .2s, filter .2s;
+  transition: transform .12s, box-shadow .12s;
   white-space: nowrap;
 }
 .m3-btn:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; }
-.m3-btn-filled { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); box-shadow: var(--md-elev-1); }
-.m3-btn-filled:hover:not(:disabled) { box-shadow: var(--md-elev-2); filter: brightness(1.05); }
-.m3-btn-tonal { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
-.m3-btn-outlined { background: transparent; color: var(--md-sys-color-primary); border: 1px solid var(--md-sys-color-outline); }
-.m3-btn-danger-tonal { background: var(--md-sys-color-error-container); color: var(--md-sys-color-error); }
+.m3-btn-filled {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  box-shadow: var(--md-elev-1);
+}
+.m3-btn-tonal {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  box-shadow: var(--md-elev-1);
+}
+.m3-btn-outlined {
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  border-color: var(--md-sys-color-outline);
+}
+.m3-btn-danger-tonal {
+  background: #e63b2e;
+  color: #ffffff;
+  box-shadow: var(--md-elev-1);
+}
+.m3-btn:hover:not(:disabled) { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
+.m3-btn:active:not(:disabled) { transform: translate(4px, 4px); box-shadow: 0 0 0 #000; }
 
 /* Chips */
 .m3-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
@@ -165,16 +186,16 @@
   gap: 6px;
   height: 40px;
   padding: 0 8px 0 14px;
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--md-sys-color-surface-container-high);
-  border: 1px solid var(--md-sys-color-outline-variant);
+  border: 2px solid #000;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
 }
 .m3-chip .trophy { color: var(--md-sys-color-primary); font-size: 14px; }
 .m3-chip button {
   width: 24px; height: 24px;
-  border-radius: 50%;
+  border-radius: 0;
   border: none;
   background: transparent;
   color: var(--md-sys-color-on-surface-variant);
@@ -182,30 +203,31 @@
   display: grid; place-items: center;
   padding: 0;
 }
-.m3-chip button:hover { background: var(--md-sys-color-error-container); color: var(--md-sys-color-error); }
+.m3-chip button:hover { background: #e63b2e; color: #fff; }
 .m3-chip button .material-symbols-rounded { font-size: 16px; }
 
 /* Teams */
 .m3-fab-row { display: flex; gap: 12px; align-items: center; }
-.m3-fab-row .m3-btn { flex: 1; height: 56px; font-size: 15px; }
+.m3-fab-row .m3-btn { flex: 1; height: 56px; font-size: 14px; }
 .m3-teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch; margin-top: 16px; min-width: 0; }
 .m3-team {
-  border-radius: var(--md-shape-l);
+  border-radius: 0;
   padding: 14px;
   min-height: 140px;
   min-width: 0;
-  border: 1px solid var(--md-sys-color-outline-variant);
+  border: 3px solid #000;
 }
 .m3-team.a { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
 .m3-team.b { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
-.m3-team h3 { margin: 0 0 10px; font-size: 14px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+.m3-team h3 { margin: 0 0 10px; font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
 .m3-player {
   background: var(--md-sys-color-surface-container-lowest);
   color: var(--md-sys-color-on-surface);
-  border-radius: var(--md-shape-m);
+  border-radius: 0;
+  border: 2px solid #000;
   padding: 12px 14px;
   margin: 6px 0;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 16px;
   display: flex;
   align-items: center;
@@ -214,17 +236,18 @@
 }
 .m3-player .material-symbols-rounded { font-size: 18px; color: var(--md-sys-color-primary); }
 .m3-player-avatar {
-  width: 24px; height: 24px; border-radius: 50%;
-  object-fit: cover; border: 2px solid var(--md-sys-color-primary);
+  width: 24px; height: 24px; border-radius: 0;
+  object-fit: cover; border: 2px solid #000;
   flex-shrink: 0;
 }
 .m3-vs {
   align-self: center;
   width: 48px; height: 48px;
-  border-radius: 50%;
+  border-radius: 0;
   background: var(--md-sys-color-surface-container-highest);
+  border: 3px solid #000;
   display: grid; place-items: center;
-  font-weight: 900;
+  font-weight: 700;
 }
 .m3-teams.spinning .m3-player { animation: m3shake .11s infinite; }
 @keyframes m3shake { 0% { transform: translateX(-2px) rotate(-.5deg);} 100% { transform: translateX(2px) rotate(.5deg);} }
@@ -237,7 +260,9 @@
   display: flex; gap: 12px; align-items: flex-start;
   background: var(--md-sys-color-primary-container);
   color: var(--md-sys-color-on-primary-container);
-  border-radius: var(--md-shape-l);
+  border-radius: 0;
+  border: 3px solid #000;
+  box-shadow: var(--md-elev-1);
   padding: 14px 16px;
 }
 .m3-winner-card .material-symbols-rounded { font-size: 32px; }
@@ -257,32 +282,33 @@
 .m3-list::-webkit-scrollbar { width: 8px; }
 .m3-list::-webkit-scrollbar-thumb {
   background: var(--md-sys-color-outline-variant);
-  border-radius: 999px;
+  border-radius: 0;
 }
 .m3-list-row {
   display: flex; align-items: center; gap: 12px;
   padding: 10px 8px;
-  border-radius: var(--md-shape-m);
+  border-radius: 0;
   min-width: 0;
 }
 .m3-list-row:hover { background: var(--md-sys-color-surface-container); }
-.m3-list-row.top { background: var(--md-sys-color-primary-container); border-radius: var(--md-shape-m); }
+.m3-list-row.top { background: var(--md-sys-color-primary-container); }
 .m3-rank {
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 0;
   background: var(--md-sys-color-surface-container-highest);
+  border: 2px solid #000;
   display: grid; place-items: center;
   font-weight: 700; font-size: 14px;
   flex-shrink: 0;
 }
 .m3-list-row.top .m3-rank { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
 
-/* Avatar circular del ranking (reemplaza al número) */
+/* Avatar cuadrado del ranking (reemplaza al número) */
 .m3-avatar {
   position: relative;
   width: 46px; height: 46px;
-  border-radius: 50%;
+  border-radius: 0;
   flex-shrink: 0;
-  border: 2px solid var(--md-sys-color-outline-variant);
+  border: 3px solid #000;
   background: var(--md-sys-color-primary-container);
   color: var(--md-sys-color-on-primary-container);
   cursor: pointer;
@@ -290,12 +316,12 @@
   overflow: hidden;
   display: grid; place-items: center;
 }
-.m3-list-row.top .m3-avatar { border-color: var(--md-sys-color-primary); }
+.m3-list-row.top .m3-avatar { border-color: #000; }
 .m3-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .m3-avatar-fallback { font-weight: 700; font-size: 20px; }
 .m3-avatar-edit {
   position: absolute; inset: auto 0 0 0;
-  background: rgba(0,0,0,.55); color: #fff;
+  background: rgba(0,0,0,.65); color: #fff;
   display: grid; place-items: center;
   padding: 1px 0;
   opacity: 0;
@@ -305,7 +331,7 @@
 .m3-avatar-edit .material-symbols-rounded { font-size: 14px; }
 .m3-name-btn {
   background: none; border: none; padding: 0;
-  font: inherit; font-weight: 500;
+  font: inherit; font-weight: 600;
   color: var(--md-sys-color-on-surface);
   cursor: pointer; text-align: left;
 }
@@ -314,31 +340,32 @@
 /* Vista previa de foto para visitantes (solo lectura) */
 .m3-lightbox {
   position: fixed; inset: 0; z-index: 50;
-  background: rgba(0,0,0,.6);
+  background: rgba(0,0,0,.7);
   display: grid; place-items: center;
   padding: 16px;
 }
 .m3-lightbox-card {
   background: var(--md-sys-color-surface-container-low);
   color: var(--md-sys-color-on-surface);
-  border-radius: var(--md-shape-xl);
+  border-radius: 0;
+  border: 3px solid #000;
+  box-shadow: var(--md-elev-3);
   padding: 20px;
   max-width: min(92vw, 360px);
   text-align: center;
-  box-shadow: var(--md-elev-3);
 }
 .m3-lightbox-card img {
   width: min(70vw, 260px); height: min(70vw, 260px);
-  object-fit: cover; border-radius: 50%;
-  border: 3px solid var(--md-sys-color-primary);
+  object-fit: cover; border-radius: 0;
+  border: 3px solid #000;
 }
-.m3-lightbox-card p { font-size: 18px; font-weight: 500; margin: 12px 0; }
+.m3-lightbox-card p { font-size: 18px; font-weight: 600; margin: 12px 0; }
 .m3-lightbox-card .m3-btn { width: 100%; }
 /* Modal de ayuda: más ancho, con scroll y tabla de rangos */
 .m3-help-card { max-width: min(94vw, 560px); max-height: 86vh; overflow-y: auto; text-align: left; }
 .m3-help-card h2 { display: flex; align-items: center; gap: 8px; font-size: 20px; margin: 0 0 8px; }
 .m3-help-card h2 .material-symbols-rounded { font-size: 26px; color: var(--md-sys-color-primary); }
-.m3-help-body h3 { font-size: 15px; margin: 14px 0 4px; color: var(--md-sys-color-primary); }
+.m3-help-body h3 { font-size: 15px; margin: 14px 0 4px; color: var(--md-sys-color-primary); text-transform: uppercase; letter-spacing: .03em; }
 .m3-help-body p { font-size: 14px; font-weight: 400; margin: 4px 0; }
 .m3-help-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
 .m3-help-table th, .m3-help-table td { padding: 6px 8px; border-bottom: 1px solid var(--md-sys-color-outline-variant); text-align: left; }
@@ -348,18 +375,21 @@
 /* Matriz de partidas: verde ganó, rojo perdió */
 .m3-matrix th, .m3-matrix td { text-align: center; padding: 5px 4px; }
 .m3-matrix th:first-child, .m3-matrix td:first-child { text-align: left; }
-.m3-matrix td.w { color: #14622f; font-weight: 800; }
-.m3-matrix td.l { color: var(--md-sys-color-error); font-weight: 800; }
-.m3-matrix td.start { color: #0288d1; font-weight: 800; }
-.m3-list-name { flex: 1; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.m3-matrix td.w { color: #5fd68b; font-weight: 800; }
+.m3-matrix td.l { color: #ff8a7d; font-weight: 800; }
+.m3-matrix td.start { color: #64b5f6; font-weight: 800; }
+.m3-list-name { flex: 1; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .m3-wins-badge {
   display: inline-flex; align-items: center; gap: 4px;
   background: var(--md-sys-color-secondary-container);
   color: var(--md-sys-color-on-secondary-container);
-  border-radius: 999px;
+  border-radius: 0;
+  border: 2px solid #000;
   padding: 6px 12px;
   font-weight: 700;
   font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -369,62 +399,65 @@
 .m3-list.rank-list { gap: 10px; }
 .m3-list-row.rank-card {
   background: var(--md-sys-color-surface-container-low);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-shape-l);
+  border: 3px solid #000;
+  border-radius: 0;
   padding: 12px 14px;
   gap: 12px;
   box-shadow: var(--md-elev-1);
 }
-.m3-list-row.rank-card:hover { background: var(--md-sys-color-surface-container); }
+.m3-list-row.rank-card:hover { background: var(--md-sys-color-surface-container); transform: translate(1px, 1px); box-shadow: 3px 3px 0 #000; }
 .m3-list-row.rank-card.top {
-  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-surface-container);
+  border-color: #ffcc00;
   box-shadow: var(--md-elev-2);
 }
-/* Color de tarjeta según el tier (Bronce, Plata, Oro...) */
-.m3-list-row.rank-card.tier-hierro { border-color: #6f6a63; background: linear-gradient(180deg, rgba(111,106,99,.10), transparent 70%); }
-.m3-list-row.rank-card.tier-bronce { border-color: #cd7f32; background: linear-gradient(180deg, rgba(205,127,50,.12), transparent 70%); }
-.m3-list-row.rank-card.tier-plata { border-color: #9fb4c0; background: linear-gradient(180deg, rgba(159,180,192,.14), transparent 70%); }
-.m3-list-row.rank-card.tier-oro { border-color: #e8a93c; background: linear-gradient(180deg, rgba(232,169,60,.14), transparent 70%); }
-.m3-list-row.rank-card.tier-platino { border-color: #45b5c4; background: linear-gradient(180deg, rgba(69,181,196,.14), transparent 70%); }
-.m3-list-row.rank-card.tier-esmeralda { border-color: #2fbf71; background: linear-gradient(180deg, rgba(47,191,113,.14), transparent 70%); }
-.m3-list-row.rank-card.tier-diamante { border-color: #5aa7e8; background: linear-gradient(180deg, rgba(90,167,232,.14), transparent 70%); }
-.m3-list-row.rank-card.tier-maestro { border-color: #8b5cf6; background: linear-gradient(180deg, rgba(139,92,246,.16), transparent 70%); box-shadow: 0 0 14px rgba(139,92,246,.35); }
-.m3-list-row.rank-card.tier-hierro .m3-rank-line { color: #8a8279; }
-.m3-list-row.rank-card.tier-bronce .m3-rank-line { color: #a8641f; }
-.m3-list-row.rank-card.tier-plata .m3-rank-line { color: #6e8794; }
-.m3-list-row.rank-card.tier-oro .m3-rank-line { color: #b07c17; }
-.m3-list-row.rank-card.tier-platino .m3-rank-line { color: #1e8c9b; }
-.m3-list-row.rank-card.tier-esmeralda .m3-rank-line { color: #18915a; }
-.m3-list-row.rank-card.tier-diamante .m3-rank-line { color: #2b7fd4; }
-.m3-list-row.rank-card.tier-maestro .m3-rank-line { color: #7c3aed; }
-/* puesto con medalla */
+/* Color de tarjeta según el tier (Bronce, Plata, Oro...) — fondos planos */
+.m3-list-row.rank-card.tier-hierro { border-color: #8a8279; }
+.m3-list-row.rank-card.tier-bronce { border-color: #cd7f32; }
+.m3-list-row.rank-card.tier-plata { border-color: #9fb4c0; }
+.m3-list-row.rank-card.tier-oro { border-color: #e8a93c; }
+.m3-list-row.rank-card.tier-platino { border-color: #45b5c4; }
+.m3-list-row.rank-card.tier-esmeralda { border-color: #2fbf71; }
+.m3-list-row.rank-card.tier-diamante { border-color: #5aa7e8; }
+.m3-list-row.rank-card.tier-maestro { border-color: #8b5cf6; box-shadow: var(--md-elev-1), 0 0 14px rgba(139,92,246,.35); }
+.m3-list-row.rank-card.tier-hierro .m3-rank-line { color: #b3aaa0; }
+.m3-list-row.rank-card.tier-bronce .m3-rank-line { color: #e0954a; }
+.m3-list-row.rank-card.tier-plata .m3-rank-line { color: #c2d1da; }
+.m3-list-row.rank-card.tier-oro .m3-rank-line { color: #f0b429; }
+.m3-list-row.rank-card.tier-platino .m3-rank-line { color: #5fd4e3; }
+.m3-list-row.rank-card.tier-esmeralda .m3-rank-line { color: #4ade80; }
+.m3-list-row.rank-card.tier-diamante .m3-rank-line { color: #7db9f0; }
+.m3-list-row.rank-card.tier-maestro .m3-rank-line { color: #a78bfa; }
+/* puesto con medalla (colores planos Bauhaus) */
 .m3-pos {
-  width: 30px; height: 30px; border-radius: 50%;
+  width: 30px; height: 30px; border-radius: 0;
   display: grid; place-items: center; flex-shrink: 0;
   background: var(--md-sys-color-surface-container-highest);
+  border: 2px solid #000;
   color: var(--md-sys-color-on-surface-variant);
-  font-weight: 800; font-size: 14px;
+  font-weight: 700; font-size: 14px;
 }
-.m3-pos.pos-1 { background: linear-gradient(180deg, #ffd54d, #c8930a); color: #3d2b00; }
-.m3-pos.pos-2 { background: linear-gradient(180deg, #e8eaed, #9aa0a6); color: #202124; }
-.m3-pos.pos-3 { background: linear-gradient(180deg, #f0b27d, #a05a2c); color: #3a1f00; }
+.m3-pos.pos-1 { background: #ffcc00; color: #16130a; }
+.m3-pos.pos-2 { background: #d7d2c8; color: #16130a; }
+.m3-pos.pos-3 { background: #cd7f32; color: #16130a; }
 /* nombre + rango + stats en columna */
 .m3-list-row.rank-card .m3-list-name {
   display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
-  font-weight: 600; font-size: 15px;
+  font-weight: 700; font-size: 15px;
 }
 .m3-rank-line {
-  font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
   color: var(--md-sys-color-primary);
 }
 .m3-stats { display: flex; flex-wrap: wrap; gap: 6px; }
 .stat {
   display: inline-flex; align-items: center;
-  padding: 3px 10px; border-radius: 999px;
+  padding: 3px 10px; border-radius: 0;
+  border: 2px solid #000;
   font-size: 12px; font-weight: 800;
 }
-.stat-win { background: #ddf3e2; color: #14622f; border: 1px solid #9ad8ab; }
-.stat-loss { background: var(--md-sys-color-error-container); color: var(--md-sys-color-error); border: 1px solid currentColor; }
+.stat-win { background: #b8e0c8; color: #14622f; }
+.stat-loss { background: #f2b8b0; color: #8f1d14; }
 .stat-wr { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
 .m3-list-row.rank-card .m3-fire, .m3-list-row.rank-card .m3-cold, .m3-list-row.rank-card .m3-penta { margin-left: 6px; }
 @media (max-width: 480px) {
@@ -438,17 +471,19 @@
   display: flex; gap: 8px; align-items: center;
   background: var(--md-sys-color-error-container);
   color: var(--md-sys-color-error);
-  border-radius: var(--md-shape-m);
+  border: 3px solid #e63b2e;
+  border-radius: 0;
   padding: 12px 16px;
   margin-top: 12px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
 }
 .m3-sql { margin-top: 12px; font-size: 14px; }
 .m3-sql pre {
   white-space: pre-wrap;
-  background: #1d1b20; color: #a8c7fa;
-  padding: 12px; border-radius: var(--md-shape-m);
+  background: #0e0d0c; color: #a8c7fa;
+  border: 2px solid #000;
+  padding: 12px; border-radius: 0;
   font-size: 12px; overflow-x: auto;
 }
 .m3-muted { color: var(--md-sys-color-on-surface-variant); font-size: 14px; }
@@ -456,9 +491,10 @@
 /* Snackbar bottom hint */
 .m3-hint {
   position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
-  background: #313033; color: #f4eff4;
-  padding: 12px 20px; border-radius: 999px;
-  font-size: 14px; box-shadow: var(--md-elev-3);
+  background: var(--md-sys-color-inverse-surface); color: var(--md-sys-color-inverse-on-surface);
+  border: 3px solid #000;
+  padding: 12px 20px; border-radius: 0;
+  font-size: 14px; font-weight: 600; box-shadow: var(--md-elev-3);
 }
 
 /* ===== Ranking animado: entrada, racha en fuego, pentas y confetti ===== */
@@ -468,25 +504,27 @@
   to { opacity: 1; transform: none; }
 }
 .m3-list-row.on-fire {
-  background: linear-gradient(90deg, rgba(255,122,26,.16), transparent 70%);
-  border: 1px solid rgba(255,122,26,.45);
+  background: linear-gradient(90deg, rgba(255,122,26,.18), transparent 70%);
+  border: 2px solid rgba(255,122,26,.55);
 }
 .m3-fire {
   display: inline-flex; align-items: center; gap: 2px;
-  margin-left: 8px; padding: 2px 10px; border-radius: 999px;
+  margin-left: 8px; padding: 2px 10px; border-radius: 0;
   background: linear-gradient(180deg, #ff6a00, #c81e1e);
+  border: 2px solid #000;
   color: #fff; font-weight: 800; font-size: 12px;
   animation: fireFlicker .7s ease-in-out infinite alternate;
 }
 .m3-fire .material-symbols-rounded { font-size: 15px; }
 .m3-list-row.on-cold {
-  background: linear-gradient(90deg, rgba(79,195,247,.14), transparent 70%);
-  border: 1px solid rgba(79,195,247,.45);
+  background: linear-gradient(90deg, rgba(79,195,247,.16), transparent 70%);
+  border: 2px solid rgba(79,195,247,.55);
 }
 .m3-cold {
   display: inline-flex; align-items: center; gap: 2px;
-  margin-left: 8px; padding: 2px 10px; border-radius: 999px;
+  margin-left: 8px; padding: 2px 10px; border-radius: 0;
   background: linear-gradient(180deg, #4fc3f7, #0277bd);
+  border: 2px solid #000;
   color: #fff; font-weight: 800; font-size: 12px;
   animation: coldShiver 1.1s ease-in-out infinite alternate;
 }
@@ -511,24 +549,24 @@
 }
 .m3-penta {
   display: inline-flex; align-items: center; gap: 4px;
-  margin-left: 8px; padding: 2px 10px; border-radius: 999px;
+  margin-left: 8px; padding: 2px 10px; border-radius: 0;
   background: #2b1b4d; color: #d8b4fe;
-  border: 1px solid #a855f7;
+  border: 2px solid #a855f7;
   font-weight: 700; font-size: 12px;
 }
 .m3-penta .material-symbols-rounded { font-size: 14px; }
-.m3-penta-stepper { display: inline-flex; border: 1px solid var(--md-sys-color-outline); border-radius: 999px; overflow: hidden; flex-shrink: 0; }
+.m3-penta-stepper { display: inline-flex; border: 2px solid #000; border-radius: 0; overflow: hidden; flex-shrink: 0; }
 .m3-penta-stepper button {
   border: none; background: transparent; cursor: pointer;
   color: var(--md-sys-color-primary); font-size: 16px; font-weight: 700;
   width: 30px; height: 36px;
 }
-.m3-penta-stepper button:hover { background: var(--md-sys-color-secondary-container); }
+.m3-penta-stepper button:hover { background: var(--md-sys-color-secondary-container); color: #16130a; }
 /* Confetti en la tarjeta de ganador */
 .m3-confetti { position: relative; overflow: hidden; }
 .m3-confetti-particles { position: absolute; inset: 0; pointer-events: none; }
 .m3-confetti-particles i {
-  position: absolute; top: -10px; width: 7px; height: 11px; border-radius: 2px;
+  position: absolute; top: -10px; width: 7px; height: 11px; border-radius: 0;
   background: #ffd54d;
   animation: confettiFall 1.6s ease-in infinite;
 }
@@ -542,7 +580,7 @@
 /* ===== Modal de acceso admin ===== */
 .m3-login-backdrop {
   position: fixed; inset: 0; z-index: 60;
-  background: rgba(0,0,0,.55);
+  background: rgba(0,0,0,.7);
   display: grid; place-items: center;
   padding: 16px;
   animation: loginFade .18s ease;
@@ -552,8 +590,8 @@
   position: relative;
   background: var(--md-sys-color-surface-container-low);
   color: var(--md-sys-color-on-surface);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 28px;
+  border: 3px solid #000;
+  border-radius: 0;
   padding: 32px 28px 28px;
   width: min(92vw, 400px);
   text-align: center;
@@ -573,35 +611,35 @@
 }
 .m3-login-close {
   position: absolute; top: 12px; right: 12px;
-  width: 36px; height: 36px; border-radius: 50%;
-  border: none; background: transparent; cursor: pointer;
+  width: 36px; height: 36px; border-radius: 0;
+  border: 2px solid #000; background: transparent; cursor: pointer;
   color: var(--md-sys-color-on-surface-variant);
   display: grid; place-items: center;
 }
 .m3-login-close:hover { background: var(--md-sys-color-surface-container-high); }
 .m3-login-icon {
-  width: 64px; height: 64px; border-radius: 50%;
+  width: 64px; height: 64px; border-radius: 0;
   background: var(--md-sys-color-primary-container);
   color: var(--md-sys-color-on-primary-container);
+  border: 3px solid #000;
   display: grid; place-items: center;
   margin: 0 auto 12px;
 }
 .m3-login-icon .material-symbols-rounded { font-size: 32px; }
-.m3-login-card h2 { margin: 0 0 4px; font-size: 22px; font-weight: 500; }
+.m3-login-card h2 { margin: 0 0 4px; font-size: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
 .m3-login-card .m3-muted { margin: 0 0 18px; }
 .m3-login-card form { display: flex; flex-direction: column; gap: 10px; }
 .m3-pw-field input { padding-right: 48px; }
-.m3-pw-field input:focus { padding-left: 43px; }
 .m3-pw-toggle {
   position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 0;
   border: none; background: transparent; cursor: pointer;
   color: var(--md-sys-color-on-surface-variant);
   display: grid; place-items: center;
 }
 .m3-pw-toggle:hover { background: var(--md-sys-color-surface-container-high); }
-.m3-field-error input { border: 2px solid var(--md-sys-color-error); padding-left: 43px; }
-.m3-login-error { color: var(--md-sys-color-error); font-size: 14px; font-weight: 500; margin: 0; }
+.m3-field-error input { border-color: #e63b2e; }
+.m3-login-error { color: var(--md-sys-color-error); font-size: 14px; font-weight: 600; margin: 0; }
 .m3-login-submit { width: 100%; margin-top: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -610,9 +648,9 @@
 
 @media (max-width: 640px) {
   .m3-page { padding: 0 12px 64px; }
-  .m3-card { padding: 16px; border-radius: 20px; }
+  .m3-card { padding: 16px; }
   .m3-topbar { gap: 8px; }
-  .m3-topbar h1 { font-size: 22px; line-height: 28px; }
+  .m3-topbar h1 { font-size: 20px; line-height: 26px; }
   .m3-mode-badge { margin-left: 0; }
   .m3-input-row { flex-direction: column; }
   .m3-input-row .m3-btn { width: 100%; }

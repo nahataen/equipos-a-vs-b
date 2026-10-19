@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.neo-shadow{box-shadow:3px 3px 0px #1a1a1a;}.neo-shadow-lg{box-shadow:5px 5px 0px #1a1a1a;}.neo-shadow-sm{box-shadow:2px 2px 0px #1a1a1a;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "inverse-on-surface": "#f5f0e8",
+          "error-container": "#ffdad6",
+          "on-secondary-fixed-variant": "#1a1a1a",
+          "on-background": "#1a1a1a",
+          "outline-variant": "#d0cbc3",
+          "tertiary-fixed": "#d6e3ff",
+          "secondary-fixed-dim": "#ffb3ab",
+          "on-surface-variant": "#4a4a4a",
+          "surface-container-low": "#f2ede5",
+          "surface-container-high": "#e8e3da",
+          "on-surface": "#1a1a1a",
+          "secondary": "#e63b2e",
+          "surface-variant": "#e8e3da",
+          "on-secondary": "#1a1a1a",
+          "on-primary-container": "#1a1a1a",
+          "primary-fixed-dim": "#e6b800",
+          "inverse-primary": "#f5f0e8",
+          "on-secondary-container": "#1a1a1a",
+          "error": "#cc0000",
+          "surface-container-lowest": "#ffffff",
+          "primary-container": "#ffcc00",
+          "on-error-container": "#93000a",
+          "on-tertiary": "#ffffff",
+          "primary": "#1a1a1a",
+          "surface-dim": "#d6d1c9",
+          "on-secondary-fixed": "#1a1a1a",
+          "outline": "#1a1a1a",
+          "surface-bright": "#faf7f2",
+          "inverse-surface": "#1a1a1a",
+          "on-tertiary-fixed-variant": "#1a1a1a",
+          "surface-container": "#eee9e0",
+          "on-primary-fixed-variant": "#1a1a1a",
+          "surface-tint": "#1a1a1a",
+          "on-primary": "#ffffff",
+          "on-tertiary-container": "#1a1a1a",
+          "background": "#f5f0e8",
+          "surface-container-highest": "#e2ddd4",
+          "on-error": "#ffffff",
+          "tertiary-fixed-dim": "#a8c6ff",
+          "secondary-container": "#ffdad6",
+          "secondary-fixed": "#ffdad6",
+          "primary-fixed": "#ffcc00",
+          "tertiary": "#0055ff",
+          "on-tertiary-fixed": "#1a1a1a",
+          "on-primary-fixed": "#1a1a1a",
+          "tertiary-container": "#d6e3ff",
+          "surface": "#f5f0e8"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "fontFamily": {
+          "headline": ["Space Grotesk", "sans-serif"],
+          "display": ["Space Grotesk", "sans-serif"],
+          "body": ["Inter", "sans-serif"],
+          "label": ["Space Grotesk", "sans-serif"]
+        }
+      }
+    }
+  }</script></head><body class="bg-background font-body text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest border-b-2 border-outline"><div class="h-16 w-full px-4 md:px-8 flex items-center justify-between gap-4"><div class="flex items-center gap-6 flex-shrink-0"><div class="flex items-center gap-2"><div class="w-10 h-10 border-2 border-outline bg-primary-container flex items-center justify-center text-primary neo-shadow-sm font-headline font-bold"><span class="material-symbols-outlined text-[22px]">military_tech</span></div><div class="flex flex-col"><span class="font-headline font-bold uppercase tracking-wider text-on-surface text-base leading-none">Apex Ladder</span><span class="font-label text-[11px] text-tertiary font-bold tracking-widest uppercase">Season 24 // Pro</span></div></div><div class="hidden xl:flex items-center gap-2 px-3 py-1 border-2 border-outline bg-surface-container neo-shadow-sm"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 border border-outline animate-pulse"></span><span class="font-label text-xs text-on-surface font-bold uppercase tracking-wider">Servidores Online</span></div></div><nav class="hidden lg:flex items-center gap-1.5 border-2 border-outline bg-surface-container-low p-1 neo-shadow-sm"><a class="px-3.5 py-1.5 font-label text-xs font-bold uppercase tracking-wider border-2 border-outline bg-primary-container text-on-primary-container neo-shadow-sm transition-all" data-path="ranking-historico" href="#">Ranking Histórico</a><a class="px-3.5 py-1.5 font-label text-xs font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container-highest transition-colors" data-path="partidos-activos" href="#">Partidos Activos</a><a class="px-3.5 py-1.5 font-label text-xs font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container-highest transition-colors" data-path="historial" href="#">Historial</a><a class="px-3.5 py-1.5 font-label text-xs font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container-highest transition-colors" data-path="estadisticas" href="#">Estadísticas</a></nav><div class="flex items-center gap-3 flex-shrink-0"><div class="hidden md:flex items-center bg-surface-container-lowest border-2 border-outline px-3 py-1.5 gap-2 neo-shadow-sm"><span class="material-symbols-outlined text-[18px] text-primary">search</span><input class="bg-transparent border-none outline-none font-body text-xs text-on-surface placeholder:text-on-surface-variant w-44 lg:w-52" placeholder="Buscar invocador..." type="text"/><span class="material-symbols-outlined text-[16px] text-on-surface cursor-pointer">tune</span></div><button class="w-10 h-10 border-2 border-outline bg-surface-container-lowest hover:bg-surface-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform active:translate-x-0.5 active:translate-y-0.5" title="Refrescar datos del ranking" type="button"><span class="material-symbols-outlined text-[20px]">sync</span></button><button class="w-10 h-10 border-2 border-outline bg-surface-container-lowest hover:bg-surface-container text-on-surface flex items-center justify-center neo-shadow-sm relative transition-transform active:translate-x-0.5 active:translate-y-0.5" title="Notificaciones" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2.5 h-2.5 bg-secondary border border-outline"></span></button><div class="w-10 h-10 border-2 border-outline bg-tertiary text-on-tertiary flex items-center justify-center neo-shadow-sm font-headline font-bold"><span class="material-symbols-outlined text-[20px]">person</span></div></div></div></header><main class="w-full pt-20 pb-16 bg-background"><div class="flex flex-col w-full">
+<div class="w-full max-w-7xl mx-auto px-4 md:px-8 py-6 flex flex-col gap-6">
+<!-- Top Banner "¿Quién ganó? Primero asigna los equipos." (Bauhaus geometric notification pill) -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-2 border-outline bg-primary-container px-4 py-3 neo-shadow">
+<div class="flex items-center gap-3">
+<span class="w-7 h-7 bg-outline text-surface-container-lowest flex items-center justify-center font-headline font-bold text-sm">
+<span class="material-symbols-outlined text-[18px]">sports_score</span>
+</span>
+<span class="font-headline font-bold text-sm uppercase tracking-wide text-on-surface">
+      ¿Quién ganó? Primero asigna los equipos.
+    </span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-0.5 bg-surface-container-lowest border border-outline font-label text-[11px] font-bold uppercase tracking-wider">MMR ACTIVO</span>
+<span class="px-2.5 py-0.5 bg-secondary text-surface-container-lowest border border-outline font-label text-[11px] font-bold uppercase tracking-wider">RIOT V14.8</span>
+</div>
+</div>
+<!-- Header Section Bauhaus Neo-Brutalist -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2 font-label text-xs uppercase tracking-wider font-bold text-on-surface-variant">
+<span class="flex items-center gap-1 text-tertiary font-bold">
+<span class="material-symbols-outlined text-[16px]">sports_esports</span>
+<span>Temporada Competitiva</span>
+</span>
+<span>/</span>
+<span class="text-on-surface">Temporada Regular #24</span>
+</div>
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface-container-lowest border-3 border-2 border-outline p-6 neo-shadow-lg">
+<div class="flex items-start md:items-center gap-4">
+<div class="w-16 h-16 border-2 border-outline bg-secondary text-on-tertiary flex items-center justify-center neo-shadow flex-shrink-0">
+<span class="material-symbols-outlined text-[36px] text-white">leaderboard</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3 flex-wrap">
+<h1 class="font-headline font-bold text-3xl md:text-4xl text-on-surface tracking-tight uppercase">Ranking Histórico</h1>
+<span class="px-2.5 py-1 border border-outline bg-primary-container font-label text-xs font-bold uppercase tracking-widest text-on-surface neo-shadow-sm">Oficial</span>
+</div>
+<p class="font-body text-sm text-on-surface-variant font-medium">
+          Registro persistente de puntos de liga (LP), rachas de victoria y clasificaciones de la comunidad.
+        </p>
+</div>
+</div>
+<div class="flex items-center gap-3 self-end lg:self-center">
+<button class="flex items-center gap-2 px-4 py-2 border-2 border-outline bg-surface-container hover:bg-surface-container-highest text-on-surface font-label text-xs font-bold uppercase tracking-wider neo-shadow-sm transition-transform active:translate-x-0.5 active:translate-y-0.5" id="refreshBtn">
+<span class="material-symbols-outlined text-[18px] transition-transform duration-500" id="refreshIcon">sync</span>
+<span>Actualizar</span>
+</button>
+<button class="w-10 h-10 border-2 border-outline bg-surface-container hover:bg-surface-container-highest text-on-surface flex items-center justify-center neo-shadow-sm transition-transform active:translate-x-0.5 active:translate-y-0.5">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</div>
+<!-- Info Rules Banner (Exact rule text required) -->
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 bg-surface-container-low border-2 border-outline p-4 neo-shadow-sm">
+<div class="flex items-start md:items-center gap-3">
+<div class="w-7 h-7 bg-tertiary text-white flex items-center justify-center border border-outline flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">info</span>
+</div>
+<p class="font-body text-xs md:text-sm text-on-surface">
+<span class="font-headline font-bold uppercase text-secondary">Reglamento de LP:</span> Se conserva aunque salgan del partido. Gana <span class="font-bold text-emerald-700 bg-emerald-100 px-1 border border-emerald-500">+30</span>, pierde <span class="font-bold text-secondary bg-red-100 px-1 border border-secondary">−15</span> (rachas: <span class="font-bold text-tertiary bg-blue-100 px-1 border border-tertiary">+35 / −12 / −20</span>). Solo admin puede borrar definitivo.
+      </p>
+</div>
+<div class="flex items-center gap-2 flex-shrink-0 bg-surface-container-lowest border border-outline px-2.5 py-1">
+<span class="w-2.5 h-2.5 bg-secondary border border-outline"></span>
+<span class="font-label text-xs font-bold uppercase tracking-wider">K-Factor: 32</span>
+</div>
+</div>
+</div>
+<!-- Controls: Search & Division Filters (Todas, Bronce, Hierro, En colocación) -->
+<div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-surface-container-lowest border-2 border-outline p-4 neo-shadow">
+<!-- Search -->
+<div class="relative flex-1 max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface text-[18px]">search</span>
+<input class="w-full bg-surface-container border-2 border-outline text-on-surface placeholder:text-on-surface-variant font-body text-xs font-medium pl-9 pr-3 py-2 outline-none focus:bg-surface-container-lowest transition-colors" id="playerSearchInput" placeholder="Buscar invocador, handle o posición..." type="text"/>
+</div>
+<!-- Division Filters -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0" id="filterChipsContainer">
+<button class="filter-chip px-3 py-1.5 font-label text-xs font-bold uppercase tracking-wider border-2 border-outline bg-primary-container text-on-surface neo-shadow-sm flex items-center gap-1.5 flex-shrink-0 transition-all cursor-pointer" data-filter="all">
+<span class="material-symbols-outlined text-[16px]">groups</span>
+<span>Todas</span>
+<span class="px-1.5 py-0.2 bg-outline text-surface-container-lowest text-[10px] font-bold">14</span>
+</button>
+<button class="filter-chip px-3 py-1.5 font-label text-xs font-bold uppercase tracking-wider border-2 border-outline bg-surface-container-lowest text-on-surface hover:bg-surface-container flex items-center gap-1.5 flex-shrink-0 transition-all cursor-pointer" data-filter="bronze">
+<span class="w-3 h-3 bg-[#c87a32] border border-outline"></span>
+<span>Bronce</span>
+<span class="px-1.5 py-0.2 bg-surface-container-highest border border-outline text-on-surface text-[10px] font-bold">6</span>
+</button>
+<button class="filter-chip px-3 py-1.5 font-label text-xs font-bold uppercase tracking-wider border-2 border-outline bg-surface-container-lowest text-on-surface hover:bg-surface-container flex items-center gap-1.5 flex-shrink-0 transition-all cursor-pointer" data-filter="iron">
+<span class="w-3 h-3 bg-[#6b7280] border border-outline"></span>
+<span>Hierro</span>
+<span class="px-1.5 py-0.2 bg-surface-container-highest border border-outline text-on-surface text-[10px] font-bold">7</span>
+</button>
+<button class="filter-chip px-3 py-1.5 font-label text-xs font-bold uppercase tracking-wider border-2 border-outline bg-surface-container-lowest text-on-surface hover:bg-surface-container flex items-center gap-1.5 flex-shrink-0 transition-all cursor-pointer" data-filter="placement">
+<span class="w-3 h-3 bg-tertiary border border-outline"></span>
+<span>En colocación</span>
+<span class="px-1.5 py-0.2 bg-surface-container-highest border border-outline text-on-surface text-[10px] font-bold">1</span>
+</button>
+</div>
+<!-- Sort Select -->
+<div class="flex items-center gap-2 self-end lg:self-auto flex-shrink-0">
+<span class="font-label text-xs text-on-surface-variant uppercase font-bold tracking-wider hidden sm:inline">Ordenar:</span>
+<select class="bg-surface-container-lowest border-2 border-outline text-on-surface font-label text-xs font-bold uppercase px-3 py-2 outline-none cursor-pointer neo-shadow-sm" id="sortSelect">
+<option value="rank">Posición Ladder</option>
+<option value="lp">Mayor LP</option>
+<option value="wr">Mejor Win Rate</option>
+<option value="games">Más Partidas</option>
+</select>
+</div>
+</div>
+<!-- Active Ladder Showcase Cards Grid -->
+<div class="flex flex-col gap-3" id="rankedList">
+<!-- 1. Blubby (Bronce III) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#c87a32] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="bronze" data-games="21" data-lp="60" data-name="blubby" data-wr="62">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-[#c87a32] text-white font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">1</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-surface-container overflow-hidden">
+<img alt="Blubby" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa7RIsn9OXmN0T5RcLpLEdWFSaQk5sSxVyj-GFIPypsLGBhDRdD5kY9KswmBSRakA1CViXW8JlgQzYcRT3pZlhJGYrNcDh_iDc4PQSDwQ-sRTBjsJmNkDoNlu6PYN84UzC4QR-n0_rB2tuCSy75VAKAAzm8j2HUswFhY8KYnzjtk_ZJe9w2riGV7gLR_K-mQMHySZ1UY81JDsWqPzj36nUueT8MkpZgq-RQ_F8ZNJS5AD4uqmYrJjaVg"/>
+</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Blubby</h2>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 border border-outline bg-primary-container text-on-surface font-label text-[11px] font-bold uppercase"><span class="material-symbols-outlined text-[13px]">swords</span>Penta x1</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#c87a32] uppercase tracking-wider font-bold">Bronce III • 60 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#c87a32]" style="width: 60%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">60 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">13W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">8L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-emerald-700">62%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-amber-50 text-[#c87a32] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Bronce III</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 2. Junko (Bronce III) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#c87a32] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="bronze" data-games="18" data-lp="0" data-name="junko" data-wr="61">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-[#c87a32]/80 text-white font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">2</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-surface-container overflow-hidden">
+<img alt="Junko" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8gOBIR3BcP-iJ_VbWs5XzjT0LH5bAfS8NMDq2R51EzNzUMbx4Ot6tvx7Pzapmm2d6N7X3sEhtF4esIx0yKOiQU9Pg475COSszhxncK8qoDRE43cl7iE8RiPrWGl_xtdiueAYye2swqjE2hJS1ZgidjinKRv3jmfzbKCGCRm25u9DjSRQhBhnPSAyfezynZeZrckamRombttu8HbGh4JSOPTXOZcFae-zBILqDLEeshwph7Zf5EQBl1g"/>
+</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Junko</h2>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 border border-outline bg-secondary text-white font-label text-[11px] font-bold uppercase"><span class="material-symbols-outlined text-[13px]">local_fire_department</span>🔥 x3</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#c87a32] uppercase tracking-wider font-bold">Bronce III • 0 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#c87a32]" style="width: 2%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">0 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">11W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">7L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-emerald-700">61%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-amber-50 text-[#c87a32] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Bronce III</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 3. Fairy (Bronce III) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#c87a32] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="bronze" data-games="21" data-lp="0" data-name="fairy" data-wr="57">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-[#c87a32]/60 text-white font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">3</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-surface-container overflow-hidden">
+<img alt="Fairy" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCt0ORAWR_wIwZfbtP0MjXOUJruMuGq2F0dbWZfMFmotTJN4bNcnux7EnIHVmT-jcy5GpwX_aut8afyhdHj8fIgz09f3PN6Q0nDFvVGx6BK2mWkSH7QP7jWXZpg2WDL13W8g-gF5Qm2JENQZbt7rsVdEKBnG4jBk1A3Er9MSEUNEFVoMcpC67j7Otg_dYSA_Plb-O0vIttLz6A5dIrjQW9MUR1ZA7rW-WAHSN_ra_DIezMiZqzNpRFMyQ"/>
+</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Fairy</h2>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#c87a32] uppercase tracking-wider font-bold">Bronce III • 0 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#c87a32]" style="width: 2%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">0 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">12W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">9L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-emerald-700">57%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-amber-50 text-[#c87a32] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Bronce III</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 4. DJuanchito (Bronce III) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#c87a32] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="bronze" data-games="24" data-lp="0" data-name="djuanchito" data-wr="54">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-surface-container-highest text-on-surface font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">4</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-surface-container overflow-hidden">
+<img alt="DJuanchito" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL9Bh11MXIhk-2k9oZ-gGC97RNInAzHFx4aY7GMx92ODigzmx3U0A7RmCc7N1M0Qk9-AYAuMtdOjj9sFHO-tOwWX-zK8iSnfs3g3lbgKjpyuoDQsNDf4AnqkWoSMjEanOvREj5Ue9faj7o1OlPL0lO9CzkIKM0vINfdV3V8GolXZMM0jVoHCBpz6-6JiiWBAWsnDuIBSNLCNsaEQ-fTYclCrkt0Snh7yIdQUlcRg9tHZuGYG9uO-CJsg"/>
+</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">DJuanchito</h2>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#c87a32] uppercase tracking-wider font-bold">Bronce III • 0 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#c87a32]" style="width: 2%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">0 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">13W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">11L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-on-surface">54%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-amber-50 text-[#c87a32] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Bronce III</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 5. Neid (Bronce IV) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#a15f26] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="bronze" data-games="24" data-lp="40" data-name="neid" data-wr="50">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-surface-container-highest text-on-surface font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">5</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-primary-container text-on-surface font-headline font-bold text-xl flex items-center justify-center">N</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Neid</h2>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#a15f26] uppercase tracking-wider font-bold">Bronce IV • 40 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#a15f26]" style="width: 40%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">40 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">12W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">12L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-on-surface">50%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-amber-50 text-[#a15f26] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Bronce IV</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 6. Poppa (Bronce IV) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#a15f26] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="bronze" data-games="19" data-lp="20" data-name="poppa" data-wr="53">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-surface-container-highest text-on-surface font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">6</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-secondary-container text-on-surface font-headline font-bold text-xl flex items-center justify-center">P</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Poppa</h2>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#a15f26] uppercase tracking-wider font-bold">Bronce IV • 20 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#a15f26]" style="width: 20%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">20 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">10W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">9L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-on-surface">53%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-amber-50 text-[#a15f26] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Bronce IV</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 7. Roxas (Hierro I) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#555e6d] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="iron" data-games="24" data-lp="80" data-name="roxas" data-wr="46">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-[#555e6d] text-white font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">7</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-surface-container text-on-surface font-headline font-bold text-xl flex items-center justify-center">R</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Roxas</h2>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 border border-outline bg-tertiary-container text-on-surface font-label text-[11px] font-bold uppercase"><span class="material-symbols-outlined text-[13px]">swords</span>Penta x2</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#555e6d] uppercase tracking-wider font-bold">Hierro I • 80 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#555e6d]" style="width: 80%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">80 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">11W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">13L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-on-surface">46%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-slate-100 text-[#555e6d] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Hierro I</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 8. Hanubi (Hierro I) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#555e6d] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="iron" data-games="20" data-lp="40" data-name="hanubi" data-wr="45">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-surface-container-high text-on-surface font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">8</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-surface-container text-on-surface font-headline font-bold text-xl flex items-center justify-center">H</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Hanubi</h2>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 border border-outline bg-primary-container text-on-surface font-label text-[11px] font-bold uppercase"><span class="material-symbols-outlined text-[13px]">swords</span>Penta x1</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#555e6d] uppercase tracking-wider font-bold">Hierro I • 40 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#555e6d]" style="width: 40%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">40 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">9W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">11L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-secondary">45%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-slate-100 text-[#555e6d] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Hierro I</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 9. ShinroWeed (Hierro I) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#555e6d] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="iron" data-games="16" data-lp="0" data-name="shinroweed" data-wr="44">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-surface-container-high text-on-surface font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">9</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-surface-container text-on-surface font-headline font-bold text-xl flex items-center justify-center">S</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">ShinroWeed</h2>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 border border-outline bg-primary-container text-on-surface font-label text-[11px] font-bold uppercase"><span class="material-symbols-outlined text-[13px]">swords</span>Penta x1</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#555e6d] uppercase tracking-wider font-bold">Hierro I • 0 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#555e6d]" style="width: 2%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">0 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">7W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">9L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-secondary">44%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-slate-100 text-[#555e6d] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Hierro I</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 10. Nataen (Hierro II) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#404652] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="iron" data-games="14" data-lp="80" data-name="nataen" data-wr="43">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-surface-container-high text-on-surface font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">10</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-surface-container text-on-surface font-headline font-bold text-xl flex items-center justify-center">N</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Nataen</h2>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#404652] uppercase tracking-wider font-bold">Hierro II • 80 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#404652]" style="width: 80%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">80 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">6W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">8L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-secondary">43%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-slate-100 text-[#404652] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Hierro II</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 11. Sanns (Hierro II) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#404652] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="iron" data-games="15" data-lp="60" data-name="sanns" data-wr="40">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-surface-container-high text-on-surface font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">11</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-surface-container text-on-surface font-headline font-bold text-xl flex items-center justify-center">S</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Sanns</h2>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#404652] uppercase tracking-wider font-bold">Hierro II • 60 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#404652]" style="width: 60%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">60 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">6W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">9L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-secondary">40%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-slate-100 text-[#404652] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Hierro II</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 12. Hanz (Hierro II) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#404652] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="iron" data-games="8" data-lp="20" data-name="hanz" data-wr="38">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-surface-container-high text-on-surface font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">12</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-surface-container text-on-surface font-headline font-bold text-xl flex items-center justify-center">H</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Hanz</h2>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#404652] uppercase tracking-wider font-bold">Hierro II • 20 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#404652]" style="width: 20%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">20 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">3W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">5L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-secondary">38%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-slate-100 text-[#404652] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Hierro II</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 13. Mika (Hierro II) -->
+<div class="player-card relative bg-surface-container-lowest border-2 border-outline border-l-8 border-l-[#404652] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="iron" data-games="8" data-lp="20" data-name="mika" data-wr="38">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-surface-container-high text-on-surface font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">13</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-surface-container text-on-surface font-headline font-bold text-xl flex items-center justify-center">M</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h2 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Mika</h2>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-[#404652] uppercase tracking-wider font-bold">Hierro II • 20 LP</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-0.5">
+<div class="w-full h-2 border border-outline bg-surface-container-high overflow-hidden">
+<div class="h-full bg-[#404652]" style="width: 20%;"></div>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">20 / 100 LP</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-emerald-100 text-emerald-800">3W</span>
+<span class="px-2 py-1 border border-outline bg-red-100 text-red-800">5L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-secondary">38%</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-slate-100 text-[#404652] font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>Hierro II</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Placement / Provisionals Section -->
+<div class="mt-4 flex flex-col gap-3" id="placementSection">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-outline pb-2">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 bg-tertiary text-white flex items-center justify-center border border-outline">
+<span class="material-symbols-outlined text-[16px]">hourglass_top</span>
+</span>
+<h2 class="font-headline font-bold text-base text-on-surface uppercase tracking-tight">
+        En colocación <span class="font-body text-xs text-on-surface-variant font-medium lowercase tracking-normal">(juega 5 partidas para entrar al ladder oficial):</span>
+</h2>
+</div>
+<span class="font-label text-xs text-on-surface-variant font-bold uppercase tracking-wider">Partidas Provisionales</span>
+</div>
+<!-- Zembitas (En colocación) -->
+<div class="player-card relative bg-surface-container-low border-2 border-outline border-l-8 border-l-tertiary p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 neo-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all" data-division="placement" data-games="0" data-lp="0" data-name="zembitas" data-wr="0">
+<div class="flex items-center gap-4 flex-1 min-w-0">
+<div class="w-10 h-10 border-2 border-outline bg-surface-container text-on-surface font-headline text-lg font-bold flex items-center justify-center neo-shadow-sm flex-shrink-0">-</div>
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 border-2 border-outline bg-tertiary-container text-on-surface font-headline font-bold text-xl flex items-center justify-center">Z</div>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border border-outline"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline font-bold text-lg text-on-surface uppercase tracking-tight truncate">Zembitas</h3>
+<span class="px-2 py-0.5 border border-outline bg-surface-container-highest text-on-surface-variant font-label text-[11px] font-bold uppercase">Sin MMR Calibrado</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label text-xs text-on-surface-variant flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400 border border-outline"></span>• fuera</span>
+<span class="text-outline">•</span>
+<span class="font-label text-xs text-secondary font-bold uppercase tracking-wider">En colocación • 0/5</span>
+</div>
+<div class="w-48 mt-1.5 flex flex-col gap-1">
+<div class="w-full h-2 border border-outline bg-surface-container-highest overflow-hidden flex gap-1 p-0.5">
+<span class="flex-1 h-full bg-surface-container-high border border-outline/30"></span>
+<span class="flex-1 h-full bg-surface-container-high border border-outline/30"></span>
+<span class="flex-1 h-full bg-surface-container-high border border-outline/30"></span>
+<span class="flex-1 h-full bg-surface-container-high border border-outline/30"></span>
+<span class="flex-1 h-full bg-surface-container-high border border-outline/30"></span>
+</div>
+<span class="font-label text-[10px] text-on-surface-variant font-bold text-right">0/5 partidas</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1 font-label text-xs font-bold">
+<span class="px-2 py-1 border border-outline bg-surface-container text-on-surface-variant">0W</span>
+<span class="px-2 py-1 border border-outline bg-surface-container text-on-surface-variant">0L</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 border-2 border-outline bg-surface-container font-label text-xs font-bold">
+<span class="text-on-surface-variant">WR</span>
+<span class="text-on-surface-variant">—</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-3 pl-14 md:pl-0 flex-shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 border-2 border-outline bg-blue-50 text-tertiary font-label text-xs font-bold uppercase">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>0/5</span>
+</div>
+<button class="w-9 h-9 border-2 border-outline bg-surface-container hover:bg-primary-container text-on-surface flex items-center justify-center neo-shadow-sm transition-transform" title="Ver perfil">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bauhaus Neo-Brutalist Legend Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 border-2 border-outline bg-surface-container-lowest p-4 neo-shadow-lg">
+<div class="flex items-center gap-3 p-3 border-2 border-outline bg-surface-container-low neo-shadow-sm">
+<span class="w-5 h-5 bg-[#c87a32] border-2 border-outline flex-shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-headline font-bold text-xs uppercase text-on-surface">Liga Bronce</span>
+<span class="font-body text-[11px] text-on-surface-variant font-medium">Top 1-6 Ladder (6 Jugadores)</span>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 border-2 border-outline bg-surface-container-low neo-shadow-sm">
+<span class="w-5 h-5 bg-[#555e6d] border-2 border-outline flex-shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-headline font-bold text-xs uppercase text-on-surface">Liga Hierro</span>
+<span class="font-body text-[11px] text-on-surface-variant font-medium">Hierro I &amp; II (7 Jugadores)</span>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 border-2 border-outline bg-surface-container-low neo-shadow-sm">
+<span class="w-5 h-5 bg-tertiary border-2 border-outline flex-shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-headline font-bold text-xs uppercase text-on-surface">En Colocación</span>
+<span class="font-body text-[11px] text-on-surface-variant font-medium">5 Partidas Requeridas (1 Jugador)</span>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 border-2 border-outline bg-primary-container neo-shadow-sm">
+<span class="w-5 h-5 bg-outline text-white flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[14px]">sports_score</span>
+</span>
+<div class="flex flex-col">
+<span class="font-headline font-bold text-xs uppercase text-on-surface">¿Quién ganó?</span>
+<span class="font-body text-[11px] text-on-surface font-medium">Primero asigna los equipos.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Filter logic
+  const filterChips = document.querySelectorAll('.filter-chip');
+  const playerCards = document.querySelectorAll('.player-card');
+  const searchInput = document.getElementById('playerSearchInput');
+  const sortSelect = document.getElementById('sortSelect');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const refreshIcon = document.getElementById('refreshIcon');
+  const rankedList = document.getElementById('rankedList');
+  const placementSection = document.getElementById('placementSection');
+
+  let activeFilter = 'all';
+
+  function applyFilters() {
+    const query = searchInput.value.toLowerCase().trim();
+
+    playerCards.forEach(card => {
+      const division = card.getAttribute('data-division');
+      const name = card.getAttribute('data-name');
+
+      const matchesFilter = (activeFilter === 'all') || (division === activeFilter);
+      const matchesSearch = !query || name.includes(query);
+
+      if (matchesFilter && matchesSearch) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // Check visibility of placement section
+    if (activeFilter !== 'all' && activeFilter !== 'placement') {
+      placementSection.style.display = 'none';
+    } else {
+      placementSection.style.display = 'flex';
+    }
+  }
+
+  filterChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      filterChips.forEach(c => {
+        c.classList.remove('bg-primary-container', 'neo-shadow-sm');
+        c.classList.add('bg-surface-container-lowest');
+      });
+
+      chip.classList.remove('bg-surface-container-lowest');
+      chip.classList.add('bg-primary-container', 'neo-shadow-sm');
+
+      activeFilter = chip.getAttribute('data-filter');
+      applyFilters();
+    });
+  });
+
+  searchInput.addEventListener('input', applyFilters);
+
+  // Sorting
+  sortSelect.addEventListener('change', (e) => {
+    const val = e.target.value;
+    const cardsArray = Array.from(rankedList.querySelectorAll('.player-card'));
+
+    cardsArray.sort((a, b) => {
+      if (val === 'lp') {
+        return parseInt(b.dataset.lp) - parseInt(a.dataset.lp);
+      } else if (val === 'wr') {
+        return parseInt(b.dataset.wr) - parseInt(a.dataset.wr);
+      } else if (val === 'games') {
+        return parseInt(b.dataset.games) - parseInt(a.dataset.games);
+      }
+      return 0; // default order
+    });
+
+    cardsArray.forEach(card => rankedList.appendChild(card));
+  });
+
+  // Refresh feedback animation
+  refreshBtn.addEventListener('click', () => {
+    refreshIcon.classList.add('rotate-180');
+    refreshBtn.classList.add('opacity-75');
+    setTimeout(() => {
+      refreshIcon.classList.remove('rotate-180');
+      refreshBtn.classList.remove('opacity-75');
+    }, 600);
+  });
+</script>
+</main>
+<footer class="w-full bg-surface-container-lowest border-t-2 border-outline py-8">
+<div class="w-full max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 border-2 border-outline bg-primary-container flex items-center justify-center text-outline font-bold neo-shadow-sm">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+</div>
+<span class="font-headline text-xs font-bold uppercase tracking-wider text-on-surface">© 2025 Apex Ladder League. Motor de Clasificación Esports Oficial.</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="font-label text-xs font-bold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:underline transition-colors" href="#">Reglamento</a>
+<a class="font-label text-xs font-bold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:underline transition-colors" href="#">API Telemetría</a>
+<a class="font-label text-xs font-bold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:underline transition-colors" href="#">Estado Sistema</a>
+</div>
+</div>
+</footer>
+</body></html>
