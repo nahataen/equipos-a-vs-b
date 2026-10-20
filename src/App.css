@@ -406,6 +406,7 @@
 /* ===== Ranking como tarjetas separadas ===== */
 .m3-list.rank-list { gap: 10px; }
 .m3-list-row.rank-card {
+  position: relative;
   background: var(--md-sys-color-surface-container-low);
   border: 3px solid #000;
   border-radius: 0;
@@ -418,6 +419,26 @@
   background: var(--md-sys-color-surface-container);
   border-color: var(--accent-bright);
   box-shadow: var(--md-elev-2);
+}
+/* Chispas del puesto #1: cuadraditos que destellan alrededor de la tarjeta */
+.m3-sparks { position: absolute; inset: 0; pointer-events: none; }
+.m3-sparks i {
+  position: absolute; width: 8px; height: 8px; border-radius: 0;
+  background: #fff; box-shadow: 2px 2px 0 #000;
+  animation: sparkPop 1.5s ease-in-out infinite;
+}
+.m3-sparks i:nth-child(3n+2) { background: #5b8cff; }
+.m3-sparks i:nth-child(3n) { background: #c2d1da; }
+.m3-sparks i:nth-child(1) { top: -8px; left: 9%; }
+.m3-sparks i:nth-child(2) { top: -8px; right: 16%; }
+.m3-sparks i:nth-child(3) { bottom: -8px; left: 15%; }
+.m3-sparks i:nth-child(4) { bottom: -8px; right: 9%; }
+.m3-sparks i:nth-child(5) { top: 46%; left: -8px; }
+.m3-sparks i:nth-child(6) { top: 42%; right: -8px; }
+@keyframes sparkPop {
+  0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+  40% { transform: scale(1.2) rotate(45deg); opacity: 1; }
+  75% { transform: scale(.6) rotate(90deg); opacity: .7; }
 }
 /* Color de tarjeta según el tier (Bronce, Plata, Oro...) — fondos planos */
 .m3-list-row.rank-card.tier-hierro { border-color: #8a8279; }
@@ -651,7 +672,7 @@
 .m3-login-submit { width: 100%; margin-top: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .rank-in, .m3-fire, .m3-cold, .m3-list-row.on-fire .m3-avatar, .m3-confetti-particles i { animation: none; }
+  .rank-in, .m3-fire, .m3-cold, .m3-list-row.on-fire .m3-avatar, .m3-confetti-particles i, .m3-sparks i { animation: none; }
 }
 
 @media (max-width: 640px) {

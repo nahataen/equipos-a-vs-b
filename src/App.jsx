@@ -739,6 +739,13 @@ function App() {
         className={`m3-list-row rank-card rank-in ${tierClass} ${!unplaced && i === 0 ? 'top' : ''} ${onFire ? 'on-fire' : ''} ${onCold ? 'on-cold' : ''}`}
         style={{ animationDelay: `${Math.min(i, 10) * 0.05}s` }}
       >
+        {!unplaced && i === 0 && (
+          <span className="m3-sparks" aria-hidden="true">
+            {Array.from({ length: 6 }).map((_, k) => (
+              <i key={k} style={{ animationDelay: `${k * 0.24}s` }} />
+            ))}
+          </span>
+        )}
         <span className={`m3-pos ${posClass}`} title={unplaced ? 'En colocación' : `Puesto ${posLabel}`}>{posLabel}</span>
         <button
           onClick={() => onAvatarClick(p)}
@@ -777,8 +784,8 @@ function App() {
               x{st}
             </span>
           )}
-          {onCold && (
-            <span className="m3-cold" title={`Racha de ${-st} derrotas • pierde −${LP_LOSS_COLD} LP`}>
+          {st < 0 && (
+            <span className="m3-cold" title={`Racha de ${-st} derrotas • pierde −${onCold ? LP_LOSS_COLD : LP_LOSS} LP`}>
               <span className="material-symbols-rounded">ac_unit</span>
               x{-st}
             </span>
