@@ -407,6 +407,7 @@
 .m3-list.rank-list { gap: 10px; }
 .m3-list-row.rank-card {
   position: relative;
+  flex-shrink: 0; /* la lista es una columna con scroll: sin esto, una tarjeta con overflow:hidden (la #1) se aplasta */
   background: var(--md-sys-color-surface-container-low);
   border: 3px solid #000;
   border-radius: 0;
