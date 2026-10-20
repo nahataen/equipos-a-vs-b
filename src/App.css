@@ -564,6 +564,9 @@
   background: linear-gradient(90deg, rgba(79,195,247,.16), transparent 70%);
   border: 2px solid rgba(79,195,247,.55);
 }
+/* Las rachas se heredaron de la lista plana y bajaban el borde de las tarjetas a
+   2px (fila más baja que las demás). En rank-card el borde siempre mide 3px. */
+.m3-list-row.rank-card.on-fire, .m3-list-row.rank-card.on-cold { border-width: 3px; }
 .m3-cold {
   display: inline-flex; align-items: center; gap: 2px;
   margin-left: 8px; padding: 2px 10px; border-radius: 0;
