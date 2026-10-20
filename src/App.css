@@ -416,11 +416,34 @@
 }
 .m3-list-row.rank-card:hover { background: var(--md-sys-color-surface-container); transform: translate(1px, 1px); box-shadow: 3px 3px 0 #000; }
 .m3-list-row.rank-card.top {
-  background: var(--md-sys-color-surface-container);
+  overflow: hidden; /* recorta el barrido holográfico a la tarjeta */
   border-color: var(--accent-bright);
   box-shadow: var(--md-elev-2);
+  /* Foil holográfico: tintes cian/azul/violeta/rosa/plata (sin amarillo) sobre la
+     capa base; el borde del tier (bronce) sigue mandando por orden de CSS */
+  background:
+    linear-gradient(115deg, rgba(125,232,240,.24), rgba(91,140,255,.30) 30%, rgba(176,125,232,.26) 55%, rgba(255,122,217,.22) 78%, rgba(194,209,218,.24)),
+    var(--md-sys-color-surface-container);
+  background-size: 260% 260%;
+  /* rankIn va aquí: animation en este selector pisa al de .rank-in */
+  animation: rankIn .45s ease both, holoShift 5s ease-in-out infinite alternate;
 }
-/* Chispas del puesto #1: cuadraditos que destellan alrededor de la tarjeta */
+.m3-list-row.rank-card.top::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(100deg, transparent 34%, rgba(255,255,255,.4) 46%, rgba(125,232,240,.38) 52%, rgba(176,125,232,.38) 58%, transparent 70%);
+  transform: translateX(-130%);
+  animation: holoSweep 4.5s ease-in-out infinite;
+}
+@keyframes holoShift {
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
+}
+@keyframes holoSweep {
+  0% { transform: translateX(-130%); }
+  45%, 100% { transform: translateX(130%); }
+}
+/* Chispas del puesto #1: cuadraditos que destellan dentro de la tarjeta */
 .m3-sparks { position: absolute; inset: 0; pointer-events: none; }
 .m3-sparks i {
   position: absolute; width: 8px; height: 8px; border-radius: 0;
@@ -429,12 +452,12 @@
 }
 .m3-sparks i:nth-child(3n+2) { background: #5b8cff; }
 .m3-sparks i:nth-child(3n) { background: #c2d1da; }
-.m3-sparks i:nth-child(1) { top: -8px; left: 9%; }
-.m3-sparks i:nth-child(2) { top: -8px; right: 16%; }
-.m3-sparks i:nth-child(3) { bottom: -8px; left: 15%; }
-.m3-sparks i:nth-child(4) { bottom: -8px; right: 9%; }
-.m3-sparks i:nth-child(5) { top: 46%; left: -8px; }
-.m3-sparks i:nth-child(6) { top: 42%; right: -8px; }
+.m3-sparks i:nth-child(1) { top: 4px; left: 9%; }
+.m3-sparks i:nth-child(2) { top: 4px; right: 16%; }
+.m3-sparks i:nth-child(3) { bottom: 4px; left: 15%; }
+.m3-sparks i:nth-child(4) { bottom: 4px; right: 9%; }
+.m3-sparks i:nth-child(5) { top: 44%; left: 3px; }
+.m3-sparks i:nth-child(6) { top: 40%; right: 3px; }
 @keyframes sparkPop {
   0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
   40% { transform: scale(1.2) rotate(45deg); opacity: 1; }
@@ -672,7 +695,7 @@
 .m3-login-submit { width: 100%; margin-top: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .rank-in, .m3-fire, .m3-cold, .m3-list-row.on-fire .m3-avatar, .m3-confetti-particles i, .m3-sparks i { animation: none; }
+  .rank-in, .m3-fire, .m3-cold, .m3-list-row.on-fire .m3-avatar, .m3-confetti-particles i, .m3-sparks i, .m3-list-row.rank-card.top, .m3-list-row.rank-card.top::after { animation: none; }
 }
 
 @media (max-width: 640px) {
