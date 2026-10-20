@@ -417,6 +417,7 @@
 .m3-list-row.rank-card:hover { background: var(--md-sys-color-surface-container); transform: translate(1px, 1px); box-shadow: 3px 3px 0 #000; }
 .m3-list-row.rank-card.top {
   overflow: hidden; /* recorta el barrido holográfico a la tarjeta */
+  isolation: isolate; /* su propio stacking context: los puntitos z-index -1 quedan sobre el fondo y bajo el texto */
   border-color: var(--accent-bright);
   box-shadow: var(--md-elev-2);
   /* Foil holográfico: tintes cian/azul/violeta/rosa/plata (sin amarillo) sobre la
@@ -443,25 +444,16 @@
   0% { transform: translateX(-130%); }
   45%, 100% { transform: translateX(130%); }
 }
-/* Chispas del puesto #1: cuadraditos que destellan dentro de la tarjeta */
-.m3-sparks { position: absolute; inset: 0; pointer-events: none; }
+/* Puntitos blancos del puesto 1: chicos, aleatorios y DETRÁS del contenido */
+.m3-sparks { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
 .m3-sparks i {
-  position: absolute; width: 14px; height: 14px; border-radius: 0;
-  background: #fff; box-shadow: 3px 3px 0 #000;
-  animation: sparkPop 1.5s ease-in-out infinite;
+  position: absolute; width: 4px; height: 4px; border-radius: 0;
+  background: #fff;
+  animation: dotTwinkle 2.4s ease-in-out infinite;
 }
-.m3-sparks i:nth-child(3n+2) { background: #5b8cff; }
-.m3-sparks i:nth-child(3n) { background: #c2d1da; }
-.m3-sparks i:nth-child(1) { top: 3px; left: 9%; }
-.m3-sparks i:nth-child(2) { top: 3px; right: 16%; }
-.m3-sparks i:nth-child(3) { bottom: 3px; left: 15%; }
-.m3-sparks i:nth-child(4) { bottom: 3px; right: 9%; }
-.m3-sparks i:nth-child(5) { top: 42%; left: 2px; }
-.m3-sparks i:nth-child(6) { top: 38%; right: 2px; }
-@keyframes sparkPop {
-  0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
-  40% { transform: scale(1.25) rotate(45deg); opacity: 1; }
-  75% { transform: scale(.7) rotate(90deg); opacity: .7; }
+@keyframes dotTwinkle {
+  0%, 100% { opacity: .12; }
+  50% { opacity: .9; }
 }
 /* Color de tarjeta según el tier (Bronce, Plata, Oro...) — fondos planos */
 .m3-list-row.rank-card.tier-hierro { border-color: #8a8279; }

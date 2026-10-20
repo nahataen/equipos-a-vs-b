@@ -741,8 +741,8 @@ function App() {
       >
         {!unplaced && i === 0 && (
           <span className="m3-sparks" aria-hidden="true">
-            {Array.from({ length: 6 }).map((_, k) => (
-              <i key={k} style={{ animationDelay: `${k * 0.24}s` }} />
+            {Array.from({ length: 16 }).map((_, k) => (
+              <i key={k} style={{ left: `${(k * 37) % 92}%`, top: `${(k * 53) % 86}%`, animationDelay: `${(k % 8) * 0.3}s` }} />
             ))}
           </span>
         )}
