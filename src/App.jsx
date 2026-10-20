@@ -36,14 +36,14 @@ const shuffle = (arr) => {
 // LP por racha (estilo LoL simplificado):
 // base: gana +30 / pierde −15. Racha de 3+ victorias seguidas: gana +35.
 // Perder con racha de victorias activa (rompe la racha): solo −12.
-// Racha de 3+ derrotas seguidas: −20 (castigo). Tras romper racha vuelve el base.
+// Racha de 5+ derrotas seguidas: −20 (castigo). Tras romper racha vuelve el base.
 const LP_WIN = 30
 const LP_WIN_HOT = 35
 const LP_LOSS = 15
 const LP_LOSS_MERCY = 12
 const LP_LOSS_COLD = 20
 const HOT_STREAK = 3
-const COLD_STREAK = 3
+const COLD_STREAK = 5
 const nextStreakOnWin = (s) => (s > 0 ? s + 1 : 1)
 const nextStreakOnLoss = (s) => (s < 0 ? s - 1 : -1)
 const lpForWin = (streakBefore) => (nextStreakOnWin(streakBefore) >= HOT_STREAK ? LP_WIN_HOT : LP_WIN)
@@ -928,10 +928,10 @@ function App() {
                 <tbody>
                   <tr><td>Normal (o tras romper una racha)</td><td className="w">+30</td><td className="l">−15</td></tr>
                   <tr><td>Racha de 3+ victorias seguidas 🔥</td><td className="w">+35</td><td>−12 (solo la que rompe la racha)</td></tr>
-                  <tr><td>Racha de 3+ derrotas seguidas ❄️</td><td className="w">+30</td><td className="l">−20</td></tr>
+                  <tr><td>Racha de 5+ derrotas seguidas ❄️</td><td className="w">+30</td><td className="l">−20</td></tr>
                 </tbody>
               </table>
-              <p>Si ganas <b>3 seguidas</b> empiezas a ganar más (+35) y perder cuesta menos (−12). Si pierdes tras una racha, vuelves al base: +30 / −15. Si caes en <b>3 derrotas seguidas</b> te castigan más (−20).</p>
+              <p>Si ganas <b>3 seguidas</b> empiezas a ganar más (+35) y perder cuesta menos (−12). Si pierdes tras una racha, vuelves al base: +30 / −15. Si caes en <b>5 derrotas seguidas</b> te castigan más (−20).</p>
               <h3>Lo que ves: rango y LP</h3>
               <p>Empiezas en <b>Bronce IV - 0 LP</b>. Cada división vale <b>100 LP</b> y cada nivel tiene 4 divisiones (de la IV a la I).</p>
               <table className="m3-help-table">
@@ -949,7 +949,7 @@ function App() {
               </table>
               <h3>Rachas: el fuego y el frío</h3>
               <p>🔥 <b>3 victorias seguidas</b> = bonus: ganas +35 y perder solo cuesta −12 (la que rompe la racha). Después vuelves al base.</p>
-              <p>❄️ <b>3 derrotas seguidas</b> = castigo: pierdes −20. Con la primera victoria vuelves al base.</p>
+              <p>❄️ <b>5 derrotas seguidas</b> = castigo: pierdes −20. Con la primera victoria vuelves al base.</p>
               <h3>Equipos por partida</h3>
               <p>Quién jugó de cada lado, con el promedio del equipo y lo que subió o bajó cada uno:</p>
               <div className="m3-help-scroll">
@@ -958,12 +958,12 @@ function App() {
                 <tbody>
                   <tr><td>P1</td><td>Nata, Roxas, DJ, Poppa, Hanubi (400)</td><td>Neid, Junko, Blubby, Hanz, Mika (400)</td><td>+30 / −15</td></tr>
                   <tr><td>P2</td><td>DJ, Hanubi, Neid, Blubby, Poppa (412)</td><td>Nata, Junko, Hanz, Mika, Roxas (403)</td><td>+30 / −12/−15</td></tr>
-                  <tr><td>P3</td><td>Nata, Hanubi, Neid, Blubby, Junko (416)</td><td>Mika, Roxas, Hanz, DJ, Poppa (416)</td><td>+30/+35 / −12/−15/−20</td></tr>
-                  <tr><td>P4</td><td>Hanubi, Blubby, DJ, Mika, Fairy (428)</td><td>Nata, Roxas, Hanz, Junko, Neid (409)</td><td>+30/+35 / −12/−20</td></tr>
-                  <tr><td>P5</td><td>Nata, Hanz, Junko, Neid, DJ (413)</td><td>Hanubi, Blubby, Mika, Fairy, Roxas (441)</td><td>+30 / −12/−20</td></tr>
-                  <tr><td>P6</td><td>Blubby, Mika, Junko, DJ, Hanz (424)</td><td>Nata, Roxas, Neid, Hanubi, Fairy (446)</td><td>+30/+35 / −12/−15/−20</td></tr>
-                  <tr><td>P7</td><td>Blubby, Junko, Roxas, Fairy, Neid (429)</td><td>Nata, Mika, DJ, Hanz, Hanubi (458)</td><td>+30/+35 / −12/−15/−20</td></tr>
-                  <tr><td>P8</td><td>Junko, Roxas, Hanz, Mika, Hanubi (421)</td><td>Nata, DJ, Neid, Fairy, Blubby (482)</td><td>+30/+35 / −12/−20</td></tr>
+                  <tr><td>P3</td><td>Nata, Hanubi, Neid, Blubby, Junko (416)</td><td>Mika, Roxas, Hanz, DJ, Poppa (416)</td><td>+30/+35 / −12/−15</td></tr>
+                  <tr><td>P4</td><td>Hanubi, Blubby, DJ, Mika, Fairy (429)</td><td>Nata, Roxas, Hanz, Junko, Neid (410)</td><td>+30/+35 / −12/−15</td></tr>
+                  <tr><td>P5</td><td>Nata, Hanz, Junko, Neid, DJ (415)</td><td>Hanubi, Blubby, Mika, Fairy, Roxas (443)</td><td>+30 / −12/−15</td></tr>
+                  <tr><td>P6</td><td>Blubby, Mika, Junko, DJ, Hanz (427)</td><td>Nata, Roxas, Neid, Hanubi, Fairy (448)</td><td>+30/+35 / −12/−15/−20</td></tr>
+                  <tr><td>P7</td><td>Blubby, Junko, Roxas, Fairy, Neid (431)</td><td>Nata, Mika, DJ, Hanz, Hanubi (461)</td><td>+30/+35 / −12/−15</td></tr>
+                  <tr><td>P8</td><td>Junko, Roxas, Hanz, Mika, Hanubi (427)</td><td>Nata, DJ, Neid, Fairy, Blubby (482)</td><td>+30/+35 / −12/−15</td></tr>
                 </tbody>
               </table>
               </div>
@@ -972,16 +972,16 @@ function App() {
               <table className="m3-help-table m3-matrix">
                 <thead><tr><th></th><th>Inicio</th><th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th><th>P7</th><th>P8</th><th>Total</th></tr></thead>
                 <tbody>
-                  <tr><td>Nataen</td><td className="start">400</td><td className="w">430</td><td className="l">418</td><td className="w">448</td><td className="l">436</td><td className="w">466</td><td className="l">454</td><td className="l">439</td><td className="l">419</td><td>3-5</td></tr>
-                  <tr><td>Roxas</td><td className="start">400</td><td className="w">430</td><td className="l">418</td><td className="l">403</td><td className="l">383</td><td className="l">363</td><td className="l">343</td><td className="w">373</td><td className="w">403</td><td>3-5</td></tr>
+                  <tr><td>Nataen</td><td className="start">400</td><td className="w">430</td><td className="l">418</td><td className="w">448</td><td className="l">436</td><td className="w">466</td><td className="l">454</td><td className="l">439</td><td className="l">424</td><td>3-5</td></tr>
+                  <tr><td>Roxas</td><td className="start">400</td><td className="w">430</td><td className="l">418</td><td className="l">403</td><td className="l">388</td><td className="l">373</td><td className="l">353</td><td className="w">383</td><td className="w">413</td><td>3-5</td></tr>
                   <tr><td>DJuanchito</td><td className="start">400</td><td className="w">430</td><td className="w">460</td><td className="l">448</td><td className="w">478</td><td className="w">508</td><td className="w">543</td><td className="l">531</td><td className="l">516</td><td>5-3</td></tr>
                   <tr><td>Poppa</td><td className="start">400</td><td className="w">430</td><td className="w">460</td><td className="l">448</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>2-1</td></tr>
-                  <tr><td>Hanubi</td><td className="start">400</td><td className="w">430</td><td className="w">460</td><td className="w">495</td><td className="w">530</td><td className="l">518</td><td className="l">503</td><td className="l">483</td><td className="w">513</td><td>5-3</td></tr>
+                  <tr><td>Hanubi</td><td className="start">400</td><td className="w">430</td><td className="w">460</td><td className="w">495</td><td className="w">530</td><td className="l">518</td><td className="l">503</td><td className="l">488</td><td className="w">518</td><td>5-3</td></tr>
                   <tr><td>Neid</td><td className="start">400</td><td className="l">385</td><td className="w">415</td><td className="w">445</td><td className="l">433</td><td className="w">463</td><td className="l">451</td><td className="w">481</td><td className="l">469</td><td>4-4</td></tr>
                   <tr><td>Junko</td><td className="start">400</td><td className="l">385</td><td className="l">370</td><td className="w">400</td><td className="l">388</td><td className="w">418</td><td className="w">448</td><td className="w">483</td><td className="w">518</td><td>5-3</td></tr>
                   <tr><td>Blubby</td><td className="start">400</td><td className="l">385</td><td className="w">415</td><td className="w">445</td><td className="w">480</td><td className="l">468</td><td className="w">498</td><td className="w">528</td><td className="l">516</td><td>5-3</td></tr>
-                  <tr><td>Hanz</td><td className="start">400</td><td className="l">385</td><td className="l">370</td><td className="l">350</td><td className="l">330</td><td className="w">360</td><td className="w">390</td><td className="l">378</td><td className="w">408</td><td>3-5</td></tr>
-                  <tr><td>Mika</td><td className="start">400</td><td className="l">385</td><td className="l">370</td><td className="l">350</td><td className="w">380</td><td className="l">368</td><td className="w">398</td><td className="l">386</td><td className="w">416</td><td>3-5</td></tr>
+                  <tr><td>Hanz</td><td className="start">400</td><td className="l">385</td><td className="l">370</td><td className="l">355</td><td className="l">340</td><td className="w">370</td><td className="w">400</td><td className="l">388</td><td className="w">418</td><td>3-5</td></tr>
+                  <tr><td>Mika</td><td className="start">400</td><td className="l">385</td><td className="l">370</td><td className="l">355</td><td className="w">385</td><td className="l">373</td><td className="w">403</td><td className="l">391</td><td className="w">421</td><td>3-5</td></tr>
                   <tr><td>Fairy</td><td className="start">400</td><td>—</td><td>—</td><td>—</td><td className="w">430</td><td className="l">418</td><td className="l">403</td><td className="w">433</td><td className="l">421</td><td>2-3</td></tr>
                   <tr><td>Sanns</td><td className="start">400</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0-0</td></tr>
                 </tbody>

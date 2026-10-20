@@ -1,8 +1,8 @@
 // Sistema ranked con LP por racha (mismas reglas que la app):
 // base gana +30 / pierde −15; racha 3+ victorias → gana +35 y perder esa cuesta −12;
-// racha 3+ derrotas → pierde −20; piso 0. Agrega partidas a GAMES y corre: node ranked.js
+// racha 5+ derrotas → pierde −20; piso 0. Agrega partidas a GAMES y corre: node ranked.js
 const BASE = 400, WIN = 30, WIN_HOT = 35, LOSS = 15, LOSS_MERCY = 12, LOSS_COLD = 20;
-const HOT = 3, COLD = 3, MIN_GAMES = 5;
+const HOT = 3, COLD = 5, MIN_GAMES = 5;
 const TIERS = ['Hierro', 'Bronce', 'Plata', 'Oro', 'Platino', 'Esmeralda', 'Diamante'];
 
 const GAMES = [
